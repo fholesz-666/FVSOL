@@ -344,38 +344,35 @@ var scrollWindow = function() {
 
 var counter = function() {
   $('.section-counter').waypoint(function(direction) {
-
     if(direction === 'down' && !$(this.element).hasClass('ftco-animated')) {
-
-      var comma_separator_number_step = $.animateNumber.numberStepFactories.separator(',');
 
       $(this.element).find('.number-counter').each(function(index) {
         var $this = $(this),
-            end = parseInt($this.data('number')) || 0;
+            end = parseInt($this.data('number')) || 0,
+            start = parseInt($this.text()) || 0;
 
-        if(index === 3) {
-          // poslední counter - loop
-          function loopCounter() {
-            $this.animateNumber({ number: end, numberStep: comma_separator_number_step }, 2000, function() {
-              $this.animateNumber({ number: 0, numberStep: comma_separator_number_step }, 2000, loopCounter);
-            });
-          }
-          loopCounter();
-
-        } else {
-          // první 3 countery - z 99 → cílové číslo
-          var start = 99;
-          $this.prop('number', start).animateNumber({
-            number: end,
-            numberStep: comma_separator_number_step
-          }, 3000);
+        if(index < 3) { // první 3 čísla animují z 99 na cílové
+          $({count: start}).animate({count: end}, {
+            duration: 3000,
+            easing: 'swing',
+            step: function() {
+              $this.text(Math.floor(this.count));
+            }
+          });
+        } else { // poslední counter loopuje
+          var current = start;
+          setInterval(function() {
+            current++;
+            if(current > end) current = 0;
+            $this.text(current);
+          }, 100); // rychlost loopu, každých 50ms přičítá 1
         }
 
       });
 
-      $(this.element).addClass('ftco-animated'); // spustí se jen jednou
-    }
+      $(this.element).addClass('ftco-animated'); // zabrání opakování waypointu
 
+    }
   }, { offset: '95%' });
 };
 
