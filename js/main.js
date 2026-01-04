@@ -83,7 +83,7 @@ var siteIstotope = function() {
 							tl2.to(img, 2, { scale: '1.0', ease:Expo.easeOut }, '-=1.5');
 						} } )
 
-				}, i * 700);
+				}, i * 400);
 
 				
 
@@ -455,7 +455,7 @@ var portfolioItemClick = function() {
 
 		$('html, body').animate({
     	scrollTop: $('#portfolio-section').offset().top - 50
-		}, 300, 'easeInOutExpo', function() {
+		}, 150, 'easeInOutExpo', function() {
 		});
 		
 		setTimeout(function(){
@@ -472,8 +472,8 @@ var portfolioItemClick = function() {
 		setTimeout(function(){
 			$('html, body').animate({
 	    	scrollTop: $('#portfolio-section').offset().top - 50
-			}, 300, 'easeInOutExpo');
-		}, 100);
+			}, 120, 'easeInOutExpo');
+		}, 120);
 
 		TweenMax.set('.portfolio-wrapper', { visibility: 'visible', height: 'auto' });
 		TweenMax.to('.portfolio-single-inner', 1, { marginTop: '50px', opacity: 0,  display: 'none', onComplete() {
@@ -487,7 +487,7 @@ var portfolioItemClick = function() {
 $(document).ajaxStop(function(){
 	setTimeout(function(){
 		TweenMax.to('.loader-portfolio-wrap', 1, { top: '0px', autoAlpha: 0, ease: Power4.easeOut });	
-	}, 400);
+	}, 200);
 });
 
 var loadPortfolioSinglePage = function(id, href) {
@@ -519,7 +519,7 @@ var loadPortfolioSinglePage = function(id, href) {
 
 					TweenMax.to('.loader-portfolio-wrap', 1, { top: '0px', autoAlpha: 0, ease: Power4.easeOut });	
 				} });
-			}, 300 );
+			}, 200 );
 		}
 	});
 
@@ -578,7 +578,7 @@ var contactForm = function() {
 	               	$('#form-message-warning').hide();
 			            setTimeout(function(){
 	               		$('#contactForm').fadeOut();
-	               	}, 1000);
+	               	}, 800);
 			            setTimeout(function(){
 			               $('#form-message-success').fadeIn();   
 	               	}, 1400);
