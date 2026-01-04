@@ -343,32 +343,42 @@ var scrollWindow = function() {
 
 
 var counter = function() {
-	
-	$('.section-counter').waypoint( function( direction ) {
+  $('.section-counter').waypoint(function(direction) {
 
-		if( direction === 'down' && !$(this.element).hasClass('ftco-animated') ) {
+    if(direction === 'down' && !$(this.element).hasClass('ftco-animated')) {
 
-			var comma_separator_number_step = $.animateNumber.numberStepFactories.separator(',')
-			$(this.element).find('.number-counter').each(function(){
-				var $this = $(this),
-					num = $this.data('number');
-				$this.animateNumber(
-				  {
-				    number: num,
-				    numberStep: comma_separator_number_step
-				  }, 
-				  {
-				  	easing: 'swing',
-    				duration: 3000
-				  }
-				);
-			});
-			
-		}
+      var comma_separator_number_step = $.animateNumber.numberStepFactories.separator(',');
 
-	} , { offset: '95%' } );
+      $(this.element).find('.number-counter').each(function(index) {
+        var $this = $(this),
+            end = parseInt($this.data('number')) || 0;
 
+        if(index === 3) {
+          // poslední counter - loop
+          function loopCounter() {
+            $this.animateNumber({ number: end, numberStep: comma_separator_number_step }, 2000, function() {
+              $this.animateNumber({ number: 0, numberStep: comma_separator_number_step }, 2000, loopCounter);
+            });
+          }
+          loopCounter();
+
+        } else {
+          // první 3 countery - z 99 → cílové číslo
+          var start = 99;
+          $this.prop('number', start).animateNumber({
+            number: end,
+            numberStep: comma_separator_number_step
+          }, 3000);
+        }
+
+      });
+
+      $(this.element).addClass('ftco-animated'); // spustí se jen jednou
+    }
+
+  }, { offset: '95%' });
 };
+
 
 
 var mobileToggleClick = function() {
