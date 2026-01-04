@@ -472,8 +472,8 @@ var portfolioItemClick = function() {
 		setTimeout(function(){
 			$('html, body').animate({
 	    	scrollTop: $('#portfolio-section').offset().top - 50
-			}, 700, 'easeInOutExpo');
-		}, 200);
+			}, 300, 'easeInOutExpo');
+		}, 100);
 
 		TweenMax.set('.portfolio-wrapper', { visibility: 'visible', height: 'auto' });
 		TweenMax.to('.portfolio-single-inner', 1, { marginTop: '50px', opacity: 0,  display: 'none', onComplete() {
@@ -519,7 +519,7 @@ var loadPortfolioSinglePage = function(id, href) {
 
 					TweenMax.to('.loader-portfolio-wrap', 1, { top: '0px', autoAlpha: 0, ease: Power4.easeOut });	
 				} });
-			}, 700 );
+			}, 300 );
 		}
 	});
 
