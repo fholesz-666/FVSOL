@@ -365,7 +365,7 @@ var counter = function() {
             current++;
             if(current > end) current = 0;
             $this.text(current);
-          }, 100); // rychlost loopu, každých 200ms přičítá 1
+          }, 220); // rychlost loopu, každých 200ms přičítá 1
         }
 
       });
@@ -581,7 +581,7 @@ var contactForm = function() {
 	               	}, 800);
 			            setTimeout(function(){
 			               $('#form-message-success').fadeIn();   
-	               	}, 1400);
+	               	}, 800);
 		               
 		            } else {
 		               $('#form-message-warning').html(msg);
