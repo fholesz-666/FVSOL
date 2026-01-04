@@ -113,8 +113,8 @@ var loader = function() {
 	setTimeout(function() {
 		TweenMax.to('.site-loader-wrap', 1, { marginTop: 50, autoAlpha: 0, ease: Power4.easeInOut });
   }, 10);
-  $(".site-loader-wrap").delay(200).fadeOut("slow");
-	$("#unslate_co--overlayer").delay(200).fadeOut("slow");	
+  $(".site-loader-wrap").delay(100).fadeOut("slow");
+	$("#unslate_co--overlayer").delay(100).fadeOut("slow");	
 }
 
 var siteMenuClone = function() {
@@ -365,7 +365,7 @@ var counter = function() {
             current++;
             if(current > end) current = 0;
             $this.text(current);
-          }, 220); // rychlost loopu, každých 200ms přičítá 1
+          }, 400); // rychlost loopu, každých 400ms přičítá 1
         }
 
       });
@@ -519,7 +519,7 @@ var loadPortfolioSinglePage = function(id, href) {
 
 					TweenMax.to('.loader-portfolio-wrap', 1, { top: '0px', autoAlpha: 0, ease: Power4.easeOut });	
 				} });
-			}, 100 );
+			}, 300 );
 		}
 	});
 
@@ -578,10 +578,10 @@ var contactForm = function() {
 	               	$('#form-message-warning').hide();
 			            setTimeout(function(){
 	               		$('#contactForm').fadeOut();
-	               	}, 800);
+	               	}, 1000);
 			            setTimeout(function(){
 			               $('#form-message-success').fadeIn();   
-	               	}, 800);
+	               	}, 1200);
 		               
 		            } else {
 		               $('#form-message-warning').html(msg);
