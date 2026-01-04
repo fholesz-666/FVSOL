@@ -365,7 +365,7 @@ var counter = function() {
             current++;
             if(current > end) current = 0;
             $this.text(current);
-          }, 200); // rychlost loopu, každých 200ms přičítá 1
+          }, 100); // rychlost loopu, každých 200ms přičítá 1
         }
 
       });
