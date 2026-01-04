@@ -455,12 +455,12 @@ var portfolioItemClick = function() {
 
 		$('html, body').animate({
     	scrollTop: $('#portfolio-section').offset().top - 50
-		}, 700, 'easeInOutExpo', function() {
+		}, 300, 'easeInOutExpo', function() {
 		});
 		
 		setTimeout(function(){
 			loadPortfolioSinglePage(id, href);
-		}, 100);
+		}, 70);
 
 		e.preventDefault();
 
