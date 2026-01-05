@@ -537,7 +537,7 @@
                 </div>
                 <div class="form-group row gsap-reveal">
                     <div class="col-md-12 d-flex align-items-center">
-                      <input type="submit" class="btn btn-outline-pill btn-custom-light mr-3" value="Send Message">
+                      <input type="submit" class="btn btn-outline-pill btn-custom-light mr-3" value="Odeslat">
                       <span class="submitting"></span>
                     </div>
                   </div>
@@ -634,13 +634,14 @@ document.getElementById("contactForm").addEventListener("submit", function(e) {
         },
         function(error) {
             // chyba při odesílání
-            warning.innerHTML = 'Zprávu se nepodařilo odeslat. Zkontrolujte konzoli.';
+            warning.innerHTML = 'Nepodařilo se odeslat. Zkuste to prosím znovu.';
             warning.style.display = 'block';
             console.error('EmailJS error:', error);
         }
     );
 });
 </script>
+
 
 
   </body>
