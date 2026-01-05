@@ -642,6 +642,29 @@ document.getElementById("contactForm").addEventListener("submit", function(e) {
 });
 </script>
 
+<style>
+#form-message-success,
+#form-message-warning {
+    display: none;       /* začínají skryté */
+    margin-top: 15px;    /* odsazení od formuláře */
+    padding: 10px 15px;  /* trochu prostoru uvnitř */
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+#form-message-success {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+#form-message-warning {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+</style>
+
 
 
   </body>
