@@ -519,7 +519,7 @@
           <div class="row justify-content-between">
             
             <div class="col-md-6">
-              <form method="post" class="form-outline-style-v1" id="contactForm">
+              <form class="form-outline-style-v1" id="contactForm">
                 <div class="form-group row mb-0">
 
                   <div class="col-lg-6 form-group gsap-reveal">
@@ -600,6 +600,48 @@
 
     <script src="js/scripts-dist.js"></script>
     <script src="js/main.js"></script>
+
+<!-- EmailJS Library -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<script>
+// Inicializace EmailJS s tvým Public Key
+(function(){
+    emailjs.init("jcI-Mfxs2Tj1RcLNA");
+})();
+</script>
+
+<script>
+document.getElementById("contactForm").addEventListener("submit", function(e) {
+    e.preventDefault(); // zabrání reloadu stránky
+
+    const warning = document.getElementById('form-message-warning');
+    const success = document.getElementById('form-message-success');
+
+    // skryj hlášky před odesláním
+    warning.style.display = 'none';
+    success.style.display = 'none';
+
+    emailjs.sendForm(
+        "service_amm7txp",    // tvůj Service ID
+        "template_g18lk2i",   // tvůj Template ID
+        this
+    ).then(
+        function() {
+            // úspěšné odeslání
+            success.style.display = 'block';
+            document.getElementById('contactForm').reset();
+        },
+        function(error) {
+            // chyba při odesílání
+            warning.innerHTML = 'Zprávu se nepodařilo odeslat. Zkontrolujte konzoli.';
+            warning.style.display = 'block';
+            console.error('EmailJS error:', error);
+        }
+    );
+});
+</script>
+
 
   </body>
 </html>

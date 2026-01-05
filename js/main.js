@@ -455,12 +455,12 @@ var portfolioItemClick = function() {
 
 		$('html, body').animate({
     	scrollTop: $('#portfolio-section').offset().top - 50
-		}, 100, 'easeInOutExpo', function() {
+		}, 400, 'easeInOutExpo', function() {
 		});
 		
 		setTimeout(function(){
 			loadPortfolioSinglePage(id, href);
-		}, 50);
+		}, 30);
 
 		e.preventDefault();
 
@@ -472,8 +472,8 @@ var portfolioItemClick = function() {
 		setTimeout(function(){
 			$('html, body').animate({
 	    	scrollTop: $('#portfolio-section').offset().top - 50
-			}, 80, 'easeInOutExpo');
-		}, 80);
+			}, 40, 'easeInOutExpo');
+		}, 40);
 
 		TweenMax.set('.portfolio-wrapper', { visibility: 'visible', height: 'auto' });
 		TweenMax.to('.portfolio-single-inner', 1, { marginTop: '50px', opacity: 0,  display: 'none', onComplete() {
@@ -487,7 +487,7 @@ var portfolioItemClick = function() {
 $(document).ajaxStop(function(){
 	setTimeout(function(){
 		TweenMax.to('.loader-portfolio-wrap', 1, { top: '0px', autoAlpha: 0, ease: Power4.easeOut });	
-	}, 100);
+	}, 55);
 });
 
 var loadPortfolioSinglePage = function(id, href) {
@@ -519,7 +519,7 @@ var loadPortfolioSinglePage = function(id, href) {
 
 					TweenMax.to('.loader-portfolio-wrap', 1, { top: '0px', autoAlpha: 0, ease: Power4.easeOut });	
 				} });
-			}, 300 );
+			}, 67 );
 		}
 	});
 
