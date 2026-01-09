@@ -79,6 +79,7 @@
                 <li><a href="#about-section" class="nav-link">O mě</a></li>
                 <li><a href="#services-section" class="nav-link">Služby</a></li>
                 <li><a href="#contact-section" class="nav-link">Kontakt</a></li>
+		<li><a href="#calculation-section" class="nav-link">Kalkulace</a></li>
               </ul>
             </div>
             <div class="site-logo pos-absolute">
@@ -502,11 +503,34 @@
                 </span>
                 <span class="counter-label">Nadstandardní dokumenty</span>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+	     </div>
+	</div>
+     </div>
       <!-- END .counter -->
+
+     <div class="unslate_co--section" id="calculation-section">
+        <div class="container">
+          <div class="section-heading-wrap text-center mb-5">
+            <h2 class="heading-h2 text-center divider"><span class="gsap-reveal">Orientační cenová nabídka</span></h2>
+            <span class="gsap-reveal"><img src="images/divider.png" alt="divider" width="76"></span>
+          </div>
+
+<div class="calconic-calculator"  data-calculatorid="6961003a04cb0a002c209956"></div>
+    <script>
+          (function() { var qs,j,q,s,d=document, gi=d.getElementById,
+  ce=d.createElement, gt=d.getElementsByTagName,
+  id="calconic_", b="https://cdn.calconic.com/static/js/";
+  if(!gi.call(d,id)) { j=ce.call(d,"script"); j.id=id; j.type="text/javascript"; j.async=true;
+  j.dataset.calconic=true;
+  j.src=b+"calconic.min.js"; q=gt.call(d,"script")[0]; q.parentNode.insertBefore(j,q) }
+})();
+        </script>
+
+
+      </div>
+      <!-- kalkulacka -->
+
+ 
 
       <div class="unslate_co--section" id="contact-section">
         <div class="container">
@@ -570,6 +594,7 @@
         </div>
       </div>
       </div> <!-- END .unslate_co-site-inner -->
+
 
               <p class="site-copyright">
                 
@@ -641,6 +666,8 @@ document.getElementById("contactForm").addEventListener("submit", function(e) {
     );
 });
 </script>
+
+
 
 <style>
 #form-message-success,
