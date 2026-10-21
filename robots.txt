@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+# Ukázkové stránky šablony – nejsou součástí webu
+Disallow: /light/
+Disallow: /main.html
+Disallow: /blog-single.html
+Disallow: /portfolio-single-1.html
+Disallow: /portfolio-single-2.html
+Disallow: /portfolio-single-3.html
+Disallow: /portfolio-single-4.html
+
+Sitemap: https://fvsol.cz/sitemap.xml
