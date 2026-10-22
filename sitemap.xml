@@ -2,66 +2,78 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://fvsol.cz/</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-10-22</lastmod>
     <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/fve-skola-pudorys-strechy.webp</image:loc>
-      <image:caption>FVE na střeše tělocvičny ZŠ a MŠ (Olomoucký kraj) – půdorys střechy, 186 panelů, 93 kWp, baterie 34,5 kWh</image:caption>
+      <image:loc>https://fvsol.cz/images/portfolio/vipax-fve-pudorys.webp</image:loc>
+      <image:caption>Rozšíření FVE na ploché střeše výrobní haly (Zlínský kraj) o 96 panelů na celkových 67,8 kWp – samozátěžová konstrukce, optimizéry Tigo, souběh kabelových tras s hromosvodem</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/lps-skola-dispozice.webp</image:loc>
-      <image:caption>Dispozice LPS na střeše s FVE – jímací tyče, vedení AlMgSi, svody a uzemnění typu B</image:caption>
+      <image:loc>https://fvsol.cz/images/portfolio/mu-koprivnice-lps.webp</image:loc>
+      <image:caption>Rekonstrukce hromosvodu budovy městského úřadu s FVE (Moravskoslezský kraj) – náhrada vodičů izolovaným vodičem HVI a ověření ochranného prostoru</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fvsol.cz/images/portfolio/zs-oldrichov-pohled.webp</image:loc>
+      <image:caption>FVE 22 kWp s baterií 40,6 kWh na střeše základní a mateřské školy (Liberecký kraj) – jižní pohled</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fvsol.cz/images/portfolio/logistika-fve-pudorys.webp</image:loc>
+      <image:caption>FVE 99,8 kWp na střeše logistického areálu (Plzeňský kraj) – 149 panelů, stringplán, odpojovače PEFS a jímací tyče LPS</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fvsol.cz/images/portfolio/vipax-lps-valiva-koule.webp</image:loc>
+      <image:caption>Hromosvod výrobní haly s FVE – ověření ochranného prostoru metodou valivé koule (LPS III, 12 svodů)</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fvsol.cz/images/portfolio/cevak-jps.webp</image:loc>
+      <image:caption>Jednopólové schéma FVE 58 kWp s bateriovým úložištěm 61 kWh pro provozní areál – rozvaděče R-FVE-AC a R-FVE-DC, rozpadové místo</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fvsol.cz/images/portfolio/hotel-fve-pudorys.webp</image:loc>
+      <image:caption>FVE 9,72 kWp na šikmé střeše hotelu (Jihočeský kraj) – 18 panelů ve dvou stringech, optimizéry Tigo</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fvsol.cz/images/portfolio/zs-jablonec-lps.webp</image:loc>
+      <image:caption>Návrh hromosvodu základní školy s FVE (Jablonec nad Nisou) – pohledy s ochranným prostorem valivé koule (LPS III)</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fvsol.cz/images/portfolio/ms-jablonec-fve.webp</image:loc>
+      <image:caption>FVE na plochých střechách dvou budov mateřské školy (Jablonec nad Nisou) – zátěžová konstrukce, pochozí pásy a záchytný systém</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://fvsol.cz/images/portfolio/lps-skola-valiva-koule.webp</image:loc>
       <image:caption>Hromosvod tělocvičny s FVE – ověření ochranného prostoru metodou valivé koule (LPS III, r = 45 m)</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/rozvadec-fve-ac.webp</image:loc>
-      <image:caption>Dokumentace rozvaděče R-FVE AC – rozmístění přístrojů a výstražné štítky</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/analyza-rizika-vysledky.webp</image:loc>
-      <image:caption>Analýza rizika ochrany před bleskem podle ČSN EN 62305-2 – součásti rizika R1–R4 a vyhodnocení</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/lps-rd-valiva-koule.webp</image:loc>
-      <image:caption>Hromosvod rodinného domu (Moravskoslezský kraj) – 3D pohledy s ochranným prostorem valivé koule</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/lps-rd-odstupove-vzdalenosti.webp</image:loc>
-      <image:caption>Hromosvod rodinného domu – výpočet dostatečných (odstupových) vzdáleností s</image:caption>
-    </image:image>
-    <image:image>
       <image:loc>https://fvsol.cz/images/portfolio/fve-rd-baterie-pudorys.webp</image:loc>
       <image:caption>FVE pro rodinný dům s baterií – půdorys střechy a detail uchycení montážní lišty na falcovanou krytinu</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/fve-rd-baterie-jps.webp</image:loc>
-      <image:caption>Jednopólové schéma hybridní FVE s bateriovým úložištěm a zálohovanými obvody (back-up)</image:caption>
+      <image:loc>https://fvsol.cz/images/portfolio/vipax-lps-preskokova.webp</image:loc>
+      <image:caption>Hromosvod výrobní haly – výpočet dostatečných (přeskokových) vzdáleností s mezi hromosvodem a FVE</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fvsol.cz/images/portfolio/bd-fve-technologie.webp</image:loc>
+      <image:caption>FVE pro bytový dům (Zlínský kraj) – umístění střídačů Victron, baterií a rozvaděčů v objektu</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fvsol.cz/images/portfolio/lps-izolovany-jimac.webp</image:loc>
+      <image:caption>Hromosvod s izolovaným jímačem a vodičem HVI (Moravskoslezský kraj) – pohledy s ochranným prostorem valivé koule</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fvsol.cz/images/portfolio/rozvadec-fve-ac.webp</image:loc>
+      <image:caption>Dokumentace rozvaděče R-FVE AC – rozmístění přístrojů a výstražné štítky</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://fvsol.cz/images/portfolio/fve-rd-pudorys-strechy.webp</image:loc>
       <image:caption>FVE na šikmé střeše rodinného domu – rozložení 21 panelů do dvou stringů, 9,975 kWp, wallbox</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/wallbox-schema.webp</image:loc>
-      <image:caption>Samostatný okruh pro nabíjení elektromobilu – jištění, proudový chránič typu A, CT měření</image:caption>
+      <image:loc>https://fvsol.cz/images/portfolio/lps-rd-odstupove-vzdalenosti.webp</image:loc>
+      <image:caption>Hromosvod rodinného domu – výpočet dostatečných (odstupových) vzdáleností s</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/fve-komercni-pudorys.webp</image:loc>
-      <image:caption>Firemní FVE 30,5 kWp na střeše z vlnitého plechu – stringy, optimizéry Tigo, odstupy od střešních oken dle PBŘ</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/fve-komercni-pohled-trasy.webp</image:loc>
-      <image:caption>Firemní FVE – jižní pohled s vedením AC a DC kabelových tras a umístěním technologie</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/fve-obec-pudorys-strechy.webp</image:loc>
-      <image:caption>FVE 32 kWp na obecní budově – trapézový plech a fólie, šest stringů, optimizéry Tigo</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://fvsol.cz/images/portfolio/fve-ms-rozmisteni-panelu.webp</image:loc>
-      <image:caption>FVE 19 kWp na ploché střeše mateřské školy (DPS) – zátěžová konstrukce, pochozí pásy, záchytný systém</image:caption>
+      <image:loc>https://fvsol.cz/images/portfolio/analyza-rizika-vysledky.webp</image:loc>
+      <image:caption>Analýza rizika ochrany před bleskem podle ČSN EN 62305-2 – součásti rizika R1–R4 a vyhodnocení</image:caption>
     </image:image>
   </url>
 </urlset>
