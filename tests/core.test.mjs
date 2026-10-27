@@ -208,5 +208,6 @@ test("data pro TZ: neznámé hodnoty zůstávají null", () => {
 test("stav pro zákazníka nikdy netvrdí dokončení bez předaného výstupu", () => {
   assert.notEqual(C.customerStatus({ phase: "order", status: "dokoncena" }).tone, "done");
   assert.equal(C.customerStatus({ phase: "order", status: "dokoncena", hasReleasedOutput: true }).tone, "done");
-  assert.equal(C.customerStatus({ phase: "inquiry", status: "ceka_na_podklady" }).tone, "action");
+  assert.equal(C.customerStatus({ phase: "inquiry", status: "ceka_na_podklady" }).tone, "progress", "automatický stav není výzva");
+  assert.equal(C.customerStatus({ phase: "inquiry", status: "ceka_na_podklady", hasOpenRequest: true }).tone, "action");
 });

@@ -64,8 +64,8 @@ export const PHASES = {
 export function customerStatus(order) {
   if (order.phase === "draft") return { label: "Zadání ještě není odeslané", tone: "neutral" };
   if (order.phase === "cancelled") return { label: "Zakázka byla zrušena", tone: "neutral" };
-  if (order.hasOpenRequest || order.status === "ceka_na_podklady")
-    return { label: "Prosím o doplnění podkladů", tone: "action" };
+  // „Prosím o doplnění“ jen u skutečné výzvy projektanta – automaticky zjištěné mezery se ukazují jako seznam
+  if (order.hasOpenRequest) return { label: "Prosím o doplnění podkladů", tone: "action" };
   if (order.hasReleasedOutput) return { label: "Dokumentace je připravena k převzetí", tone: "done" };
   if (order.phase === "order") return { label: "Zakázka je potvrzená a zpracovává se", tone: "progress" };
   return { label: "Zadání jsem přijal, ozvu se s nabídkou", tone: "progress" };

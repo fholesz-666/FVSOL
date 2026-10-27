@@ -39,19 +39,64 @@ export function sheetName(wmm: number, hmm: number): string {
   return `nestandardní ${Math.round(wmm)} × ${Math.round(hmm)} mm`;
 }
 
-async function inflate(data: Uint8Array): Promise<Uint8Array | null> {
+/** Tolerantní inflate: data za koncem zlib proudu (běžné v PDF) nezahodí už rozbalený obsah. */
+async function inflate(data: Uint8Array, limit = 8 * 1024 * 1024): Promise<Uint8Array | null> {
+  const chunks: Uint8Array[] = [];
+  let total = 0;
   try {
-    const ds = new DecompressionStream("deflate");
-    const out = new Response(new Blob([data]).stream().pipeThrough(ds));
-    return new Uint8Array(await out.arrayBuffer());
+    const reader = new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate")).getReader();
+    while (total < limit) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      total += value.length;
+    }
+    reader.cancel().catch(() => {});
   } catch {
-    return null;
+    if (!total) return null;
   }
+  const out = new Uint8Array(total);
+  let o = 0;
+  for (const c of chunks) { out.set(c, o); o += c.length; }
+  return out;
+}
+
+/** ASCII85 (Adobe) dekodér pro proudy s /ASCII85Decode. */
+export function ascii85(src: string): Uint8Array | null {
+  const s = src.replace(/\s+/g, "").replace(/^<~/, "");
+  const endIdx = s.indexOf("~>");
+  const body = endIdx >= 0 ? s.slice(0, endIdx) : s;
+  const out: number[] = [];
+  let tuple: number[] = [];
+  for (const ch of body) {
+    if (ch === "z" && tuple.length === 0) { out.push(0, 0, 0, 0); continue; }
+    const c = ch.charCodeAt(0) - 33;
+    if (c < 0 || c > 84) return null;
+    tuple.push(c);
+    if (tuple.length === 5) {
+      let v = 0;
+      for (const t of tuple) v = v * 85 + t;
+      out.push((v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255);
+      tuple = [];
+    }
+  }
+  if (tuple.length) {
+    const n = tuple.length;
+    while (tuple.length < 5) tuple.push(84);
+    let v = 0;
+    for (const t of tuple) v = v * 85 + t;
+    const b = [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255];
+    out.push(...b.slice(0, n - 1));
+  }
+  return new Uint8Array(out);
 }
 
 export async function analyzePdf(bytes: Uint8Array): Promise<Partial<FileMeta>> {
   const s = new TextDecoder("latin1").decode(bytes);
-  const pages = (s.match(/\/Type\s*\/Page(?![s\w])/g) ?? []).length;
+  // přírůstkově ukládané PDF obsahuje stránky víckrát – platí poslední /Count kořene stránek
+  const counts = [...s.matchAll(/\/Type\s*\/Pages\b[^]*?\/Count\s+(\d+)|\/Count\s+(\d+)[^]*?\/Type\s*\/Pages\b/g)]
+    .map((m) => Number(m[1] ?? m[2])).filter((n) => n > 0 && n < 10000);
+  const pages = counts.length ? counts[counts.length - 1] : (s.match(/\/Type\s*\/Page(?![s\w])/g) ?? []).length;
   const images = (s.match(/\/Subtype\s*\/Image/g) ?? []).length;
   const mb = /\/MediaBox\s*\[\s*(-?[\d.]+)\s+(-?[\d.]+)\s+(-?[\d.]+)\s+(-?[\d.]+)\s*\]/.exec(s);
   let page_mm: [number, number] | undefined, sheet: string | undefined;
@@ -67,13 +112,21 @@ export async function analyzePdf(bytes: Uint8Array): Promise<Partial<FileMeta>> 
     const head = s.slice(Math.max(0, m.index - 600), m.index);
     const dictStart = head.lastIndexOf("obj");
     const dict = dictStart >= 0 ? head.slice(dictStart) : head;
-    if (/\/Subtype\s*\/Image/.test(dict) || /\/Type\s*\/(XRef|ObjStm|Metadata)/.test(dict)) continue;
+    if (/\/Subtype\s*\/(Image|Type1C|CIDFontType0C|OpenType|XML)/.test(dict) || /\/Type\s*\/(XRef|ObjStm|Metadata|CMap|EmbeddedFile)/.test(dict) || /\/Length[123]\b/.test(dict) || /\/N\s+[134]\b/.test(dict)) continue;
     const start = m.index + m[0].length;
-    const end = s.indexOf("endstream", start);
-    if (end < 0) break;
+    const endTag = s.indexOf("endstream", start);
+    if (endTag < 0) break;
+    const len = /\/Length\s+(\d+)(?!\s+\d+\s+R)/.exec(dict);
+    const end = len && start + Number(len[1]) <= endTag ? start + Number(len[1]) : endTag;
     let content: string;
     if (/\/FlateDecode/.test(dict)) {
-      const raw = await inflate(bytes.subarray(start, end));
+      let data = bytes.subarray(start, end);
+      if (/\/ASCII85Decode/.test(dict)) {
+        const dec = ascii85(s.slice(start, end));
+        if (!dec) continue;
+        data = dec;
+      } else if (/\/Filter\s*\[[^\]]*\/[A-Z]/.test(dict) && !/\/Filter\s*\[\s*\/FlateDecode\s*\]/.test(dict)) continue;
+      const raw = await inflate(data);
       if (!raw) continue;
       budget -= raw.length;
       content = new TextDecoder("latin1").decode(raw.subarray(0, 4 * 1024 * 1024));
@@ -82,16 +135,17 @@ export async function analyzePdf(bytes: Uint8Array): Promise<Partial<FileMeta>> 
     } else continue;
     streams++;
     pathOps += (content.match(/[\d.]\s+(?:m|l|c|v|y|re)\s/g) ?? []).length;
-    textOps += (content.match(/(?:\)\s*Tj|\]\s*TJ)/g) ?? []).length;
-    re.lastIndex = end;
+    textOps += (content.match(/(?:[)>]\s*Tj|\]\s*TJ|[)>]\s*['"])/g) ?? []).length;
+    re.lastIndex = endTag;
   }
   const perPage = pages || 1;
+  const drawing = pathOps >= 60 * perPage;
+  const text = textOps >= 10 * perPage;
   let kind: FileMeta["kind"];
   if (!streams) kind = images ? "raster" : "unknown";
-  else if (images >= 1 && pathOps < 60 * perPage) kind = "raster";
-  else if (images >= 1) kind = "mixed";
-  else if (pathOps >= 60 * perPage) kind = "vector";
-  else kind = textOps ? "text" : "unknown";
+  else if (!drawing && !text) kind = images ? "raster" : textOps ? "text" : "unknown";
+  else if (images >= 1) kind = drawing ? "mixed" : "text";
+  else kind = drawing ? "vector" : "text";
   return { kind, pages, sheet, page_mm, images, path_ops: pathOps, text_ops: textOps };
 }
 
