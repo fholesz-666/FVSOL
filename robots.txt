@@ -8,5 +8,7 @@ Disallow: /portfolio-single-1.html
 Disallow: /portfolio-single-2.html
 Disallow: /portfolio-single-3.html
 Disallow: /portfolio-single-4.html
+# Administrace a soukromé stránky zakázek
+Disallow: /admin/
 
 Sitemap: https://fvsol.cz/sitemap.xml

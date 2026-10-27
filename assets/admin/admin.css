@@ -1,0 +1,91 @@
+/* Administrace zakázek – hutné, přehledné, bez dekorací */
+body { font-size: 15px; background: var(--wash); }
+.a-head { background: var(--ink); color: var(--on-ink); }
+.a-head .wrap { display: flex; align-items: center; gap: 22px; min-height: 56px; max-width: 1440px; flex-wrap: wrap; }
+.a-head .logo { font-size: 19px; }
+.a-tabs { display: flex; gap: 4px; }
+.a-tabs a { color: var(--on-ink-muted); text-decoration: none; padding: 6px 10px; border-radius: var(--radius); }
+.a-tabs a[aria-current="page"] { color: #fff; background: #23272b; }
+.a-user { margin-left: auto; color: var(--on-ink-muted); font-size: 14px; display: flex; gap: 12px; align-items: center; }
+.a-user button { background: none; border: 1px solid var(--on-ink-line); color: #fff; padding: 4px 10px; border-radius: var(--radius); cursor: pointer; font: inherit; }
+.a-main { max-width: 1440px; margin: 0 auto; padding: 24px var(--gutter) 60px; }
+.a-main h1 { font-size: 24px; margin-bottom: 14px; }
+.panel { background: var(--paper); border: 1px solid var(--line); padding: 16px 18px; margin-bottom: 16px; }
+.panel > h2 { font-size: 16px; margin: 0 0 12px; display: flex; align-items: center; gap: 10px; }
+.panel > h2 .sp { flex: 1; }
+.login { max-width: 380px; margin: 60px auto; }
+
+/* filtry a tabulka */
+.filters-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin-bottom: 14px; }
+.filters-bar .field { margin: 0; }
+.filters-bar .input, .filters-bar .select { min-height: 38px; padding: 6px 10px; font-size: 15px; }
+.filters-bar .check { align-self: center; }
+.tbl { width: 100%; border-collapse: collapse; background: var(--paper); border: 1px solid var(--line); }
+.tbl th { text-align: left; font: 500 13px var(--font-cond); color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--rule); background: var(--paper); position: sticky; top: 0; }
+.tbl td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl tr.row { cursor: pointer; }
+.tbl tr.row:hover td { background: #f8f9fa; }
+.tbl .code { font-weight: 600; white-space: nowrap; }
+.tbl .sub { color: var(--muted); font-size: 13px; }
+@media (max-width: 900px) {
+  .tbl thead { display: none; }
+  .tbl, .tbl tbody, .tbl tr, .tbl td { display: block; width: 100%; }
+  .tbl tr.row { border-bottom: 1px solid var(--rule); padding: 8px 0; }
+  .tbl td { border: 0; padding: 3px 12px; }
+}
+.st { display: inline-block; padding: 1px 7px; border-radius: var(--radius); font: 500 13px/1.6 var(--font-cond); border: 1px solid currentColor; white-space: nowrap; }
+.st-rozpracovana, .st-draft { color: var(--muted); }
+.st-ceka_na_podklady { color: var(--warn); }
+.st-podklady_k_overeni, .st-pripravena { color: #1b5fa8; }
+.st-zpracovava_se, .st-ceka_na_kontrolu { color: #6b3fa0; }
+.st-dokoncena { color: var(--ok); }
+.st-rucni_posouzeni { color: var(--red-dark); }
+
+/* detail */
+.d-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+@media (max-width: 1100px) { .d-grid { grid-template-columns: 1fr; } }
+.d-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 6px; }
+.d-head h1 { margin: 0; }
+.d-meta { color: var(--muted); margin-bottom: 16px; }
+.kv { display: grid; grid-template-columns: minmax(130px, 220px) minmax(0, 1fr); margin: 0; }
+.kv dt { font: 500 13px/1.4 var(--font-cond); color: var(--muted); padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); }
+.kv dd { margin: 0; padding: 6px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.wf { list-style: none; margin: 0; padding: 0; }
+.wf li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.wf .dot { width: 14px; height: 14px; border: 1.5px solid var(--muted); margin-top: 3px; }
+.wf li.done .dot { background: var(--ok); border-color: var(--ok); }
+.wf li.next .dot { border-color: var(--red); }
+.wf li.next { font-weight: 600; }
+.wf .when { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+.wf .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; font-weight: 400; }
+.groups h3 { font: 600 14px var(--font-cond); margin: 12px 0 4px; }
+.groups ul { margin: 0; padding-left: 18px; }
+.groups li { margin: 2px 0; }
+.q-auto { font-size: 12px; margin-left: 6px; }
+.files { list-style: none; margin: 0; padding: 0; }
+.files li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.files .nm { font-weight: 500; overflow-wrap: anywhere; }
+.files .info { color: var(--muted); font-size: 13px; }
+.files .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; align-items: start; }
+.btn-xs { min-height: 30px; padding: 0 10px; font-size: 14px; }
+.events { list-style: none; margin: 0; padding: 0; max-height: 420px; overflow: auto; }
+.events li { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.events .t { color: var(--muted); font-size: 12px; }
+.a-map { height: 260px; border: 1px solid var(--line); margin-top: 10px; }
+#flashes { position: fixed; right: 16px; bottom: 16px; left: 16px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
+.flash { background: var(--ink); color: #fff; padding: 10px 14px; max-width: 420px; pointer-events: auto; }
+.flash.err { background: var(--red-dark); }
+.row-acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.tpl { border-top: 1px solid var(--line); padding: 10px 0; }
+.tpl:first-child { border-top: 0; }
+.tpl .vers { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+.inline-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px 12px; align-items: end; }
+.inline-form .field { margin: 0; }
+.inline-form .input, .inline-form .select { min-height: 38px; padding: 6px 10px; font-size: 15px; }
+.kv .st, .files .st { white-space: normal; }
+@media (max-width: 640px) {
+  .files li { grid-template-columns: 1fr; }
+  .files .acts { justify-content: flex-start; }
+  .kv { grid-template-columns: 1fr; }
+  .kv dt { border-bottom: 0; padding-bottom: 0; }
+}
