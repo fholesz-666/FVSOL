@@ -1,0 +1,314 @@
+{
+ "portfolio": [
+  {
+   "cats": [
+    "fve-firmy"
+   ],
+   "full": "images/portfolio/vipax-fve-pudorys.webp",
+   "caption": "Rozšíření FVE na ploché střeše výrobní haly (Zlínský kraj) o 96 panelů na celkových 67,8 kWp – samozátěžová konstrukce, optimizéry Tigo, souběh kabelových tras s hromosvodem",
+   "title": "FVE · Výrobní hala",
+   "sub": "Rozšíření o 48 kWp · DPS",
+   "thumb": "images/portfolio/thumbs/vipax-fve-pudorys.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Půdorys ploché střechy výrobní haly s rozšířením fotovoltaické elektrárny a hromosvodem"
+  },
+  {
+   "cats": [
+    "lps"
+   ],
+   "full": "images/portfolio/mu-koprivnice-lps.webp",
+   "caption": "Rekonstrukce hromosvodu budovy městského úřadu s FVE (Moravskoslezský kraj) – náhrada vodičů izolovaným vodičem HVI a ověření ochranného prostoru",
+   "title": "LPS · Městský úřad",
+   "sub": "Rekonstrukce s vodičem HVI",
+   "thumb": "images/portfolio/thumbs/mu-koprivnice-lps.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "3D model budovy městského úřadu s FVE a ochranným prostorem hromosvodu"
+  },
+  {
+   "cats": [
+    "fve-firmy"
+   ],
+   "full": "images/portfolio/zs-oldrichov-pohled.webp",
+   "caption": "FVE 22 kWp s baterií 40,6 kWh na střeše základní a mateřské školy (Liberecký kraj) – jižní pohled",
+   "title": "FVE · ZŠ a MŠ",
+   "sub": "Jižní pohled · 22 kWp",
+   "thumb": "images/portfolio/thumbs/zs-oldrichov-pohled.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Jižní pohled na budovu základní školy s fotovoltaickými panely na střeše"
+  },
+  {
+   "cats": [
+    "fve-firmy"
+   ],
+   "full": "images/portfolio/logistika-fve-pudorys.webp",
+   "caption": "FVE 99,8 kWp na střeše logistického areálu (Plzeňský kraj) – 149 panelů, stringplán, odpojovače PEFS a jímací tyče LPS",
+   "title": "FVE · Logistický areál",
+   "sub": "Stringplán · 99,8 kWp",
+   "thumb": "images/portfolio/thumbs/logistika-fve-pudorys.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Půdorys střechy logistického areálu s rozložením 149 fotovoltaických panelů do stringů"
+  },
+  {
+   "cats": [
+    "lps"
+   ],
+   "full": "images/portfolio/vipax-lps-valiva-koule.webp",
+   "caption": "Hromosvod výrobní haly s FVE – ověření ochranného prostoru metodou valivé koule (LPS III, 12 svodů)",
+   "title": "LPS · Výrobní hala",
+   "sub": "Valivá koule · 12 svodů",
+   "thumb": "images/portfolio/thumbs/vipax-lps-valiva-koule.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "3D pohledy hromosvodu výrobní haly s ochranným prostorem metodou valivé koule"
+  },
+  {
+   "cats": [
+    "fve-firmy",
+    "schemata"
+   ],
+   "full": "images/portfolio/cevak-jps.webp",
+   "caption": "Jednopólové schéma FVE 58 kWp s bateriovým úložištěm 61 kWh pro provozní areál – rozvaděče R-FVE-AC a R-FVE-DC, rozpadové místo",
+   "title": "FVE · Provozní areál",
+   "sub": "JPS · 58 kWp + baterie 61 kWh",
+   "thumb": "images/portfolio/thumbs/cevak-jps.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Jednopólové schéma fotovoltaické elektrárny s bateriovým úložištěm pro firemní areál"
+  },
+  {
+   "cats": [
+    "fve-firmy"
+   ],
+   "full": "images/portfolio/hotel-fve-pudorys.webp",
+   "caption": "FVE 9,72 kWp na šikmé střeše hotelu (Jihočeský kraj) – 18 panelů ve dvou stringech, optimizéry Tigo",
+   "title": "FVE · Hotel",
+   "sub": "Půdorys střechy · 9,72 kWp",
+   "thumb": "images/portfolio/thumbs/hotel-fve-pudorys.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Půdorys střechy hotelu s rozložením fotovoltaických panelů"
+  },
+  {
+   "cats": [
+    "lps"
+   ],
+   "full": "images/portfolio/zs-jablonec-lps.webp",
+   "caption": "Návrh hromosvodu základní školy s FVE (Jablonec nad Nisou) – pohledy s ochranným prostorem valivé koule (LPS III)",
+   "title": "LPS · Základní škola",
+   "sub": "Návrh hromosvodu · DPS",
+   "thumb": "images/portfolio/thumbs/zs-jablonec-lps.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Pohledy na budovy základní školy s ochranným prostorem hromosvodu"
+  },
+  {
+   "cats": [
+    "fve-firmy"
+   ],
+   "full": "images/portfolio/ms-jablonec-fve.webp",
+   "caption": "FVE na plochých střechách dvou budov mateřské školy (Jablonec nad Nisou) – zátěžová konstrukce, pochozí pásy a záchytný systém",
+   "title": "FVE · Mateřská škola",
+   "sub": "Rozmístění panelů · DPS",
+   "thumb": "images/portfolio/thumbs/ms-jablonec-fve.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Rozmístění fotovoltaických panelů na plochých střechách dvou budov mateřské školy"
+  },
+  {
+   "cats": [
+    "lps"
+   ],
+   "full": "images/portfolio/lps-skola-valiva-koule.webp",
+   "caption": "Hromosvod tělocvičny s FVE – ověření ochranného prostoru metodou valivé koule (LPS III, r = 45 m)",
+   "title": "LPS · ZŠ, tělocvična",
+   "sub": "Ochranný prostor – valivá koule",
+   "thumb": "images/portfolio/thumbs/lps-skola-valiva-koule.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "3D pohledy hromosvodu školní tělocvičny s ochranným prostorem metodou valivé koule"
+  },
+  {
+   "cats": [
+    "fve-rd"
+   ],
+   "full": "images/portfolio/fve-rd-baterie-pudorys.webp",
+   "caption": "FVE pro rodinný dům s baterií – půdorys střechy a detail uchycení montážní lišty na falcovanou krytinu",
+   "title": "FVE · Rodinný dům",
+   "sub": "6,16 kWp + baterie 14,3 kWh",
+   "thumb": "images/portfolio/thumbs/fve-rd-baterie-pudorys.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Půdorys střechy rodinného domu s FVE a detail uchycení panelů na falcovanou krytinu"
+  },
+  {
+   "cats": [
+    "lps"
+   ],
+   "full": "images/portfolio/vipax-lps-preskokova.webp",
+   "caption": "Hromosvod výrobní haly – výpočet dostatečných (přeskokových) vzdáleností s mezi hromosvodem a FVE",
+   "title": "LPS · Výrobní hala",
+   "sub": "Dostatečné vzdálenosti s",
+   "thumb": "images/portfolio/thumbs/vipax-lps-preskokova.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Půdorys střechy výrobní haly s hromosvodem a vypočtenými přeskokovými vzdálenostmi"
+  },
+  {
+   "cats": [
+    "fve-rd"
+   ],
+   "full": "images/portfolio/bd-fve-technologie.webp",
+   "caption": "FVE pro bytový dům (Zlínský kraj) – umístění střídačů Victron, baterií a rozvaděčů v objektu",
+   "title": "FVE · Bytový dům",
+   "sub": "Umístění technologie",
+   "thumb": "images/portfolio/thumbs/bd-fve-technologie.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Půdorys bytového domu s umístěním technologie fotovoltaické elektrárny"
+  },
+  {
+   "cats": [
+    "lps"
+   ],
+   "full": "images/portfolio/lps-izolovany-jimac.webp",
+   "caption": "Hromosvod s izolovaným jímačem a vodičem HVI (Moravskoslezský kraj) – pohledy s ochranným prostorem valivé koule",
+   "title": "LPS · Izolovaný jímač",
+   "sub": "Vodič HVI · valivá koule",
+   "thumb": "images/portfolio/thumbs/lps-izolovany-jimac.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Pohledy na objekt s izolovaným jímačem hromosvodu a ochranným prostorem valivé koule"
+  },
+  {
+   "cats": [
+    "schemata"
+   ],
+   "full": "images/portfolio/rozvadec-fve-ac.webp",
+   "caption": "Dokumentace rozvaděče R-FVE AC – rozmístění přístrojů a výstražné štítky",
+   "title": "Rozvaděč FVE AC",
+   "sub": "Rozmístění přístrojů",
+   "thumb": "images/portfolio/thumbs/rozvadec-fve-ac.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Výkres rozmístění přístrojů v AC rozvaděči fotovoltaické elektrárny"
+  },
+  {
+   "cats": [
+    "fve-rd"
+   ],
+   "full": "images/portfolio/fve-rd-pudorys-strechy.webp",
+   "caption": "FVE na šikmé střeše rodinného domu – rozložení 21 panelů do dvou stringů, 9,975 kWp, wallbox",
+   "title": "FVE · Rodinný dům",
+   "sub": "Půdorys střechy · 9,98 kWp",
+   "thumb": "images/portfolio/thumbs/fve-rd-pudorys-strechy.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Půdorys šikmé střechy rodinného domu s rozložením fotovoltaických panelů do stringů"
+  },
+  {
+   "cats": [
+    "lps"
+   ],
+   "full": "images/portfolio/lps-rd-odstupove-vzdalenosti.webp",
+   "caption": "Hromosvod rodinného domu – výpočet dostatečných (odstupových) vzdáleností s",
+   "title": "LPS · Rodinný dům",
+   "sub": "Dostatečné vzdálenosti s",
+   "thumb": "images/portfolio/thumbs/lps-rd-odstupove-vzdalenosti.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "3D model střechy rodinného domu s hromosvodem a vypočtenými odstupovými vzdálenostmi"
+  },
+  {
+   "cats": [
+    "lps"
+   ],
+   "full": "images/portfolio/analyza-rizika-vysledky.webp",
+   "caption": "Analýza rizika ochrany před bleskem podle ČSN EN 62305-2 – součásti rizika R1–R4 a vyhodnocení",
+   "title": "Analýza rizika",
+   "sub": "ČSN EN 62305-2 · vyhodnocení",
+   "thumb": "images/portfolio/thumbs/analyza-rizika-vysledky.webp",
+   "w": 960,
+   "h": 720,
+   "alt": "Tabulka součástí rizika R1 až R4 z analýzy rizika ochrany před bleskem podle ČSN EN 62305-2"
+  }
+ ],
+ "filters": [
+  [
+   "*",
+   "Vše"
+  ],
+  [
+   ".fve-rd",
+   "FVE rodinné a bytové domy"
+  ],
+  [
+   ".fve-firmy",
+   "FVE firmy a veřejné budovy"
+  ],
+  [
+   ".lps",
+   "Hromosvody a analýza rizika"
+  ],
+  [
+   ".schemata",
+   "Schémata a rozvaděče"
+  ]
+ ],
+ "intro": "Výběr z mé projektové dokumentace – fotovoltaika a hromosvody pro výrobní haly, firmy, školy, úřady i rodinné domy. Razítka a údaje investorů jsou na ukázkách skryté.",
+ "about_heading": "Váš externí projektant",
+ "about": [
+  "Jsem externí projektant specializující se na fotovoltaické elektrárny a hromosvody. Vytvářím projektovou dokumentaci, dokumentaci skutečného provedení, analýzy rizika a návrhy optimálního rozložení panelů včetně materiálového výpočtu.",
+  "Pracovní zkušenosti zahrnují elektrotechniku, elektromobilitu a projektování FVE od roku 2018. Dnes se zaměřuji na dokumentaci FVE pro rodinné i komerční objekty, veřejné budovy a na návrhy hromosvodů včetně analýzy rizika podle ČSN EN 62305-2."
+ ],
+ "services": {
+  "Dokumentace LPS (hromosvody)": "Návrh nové nebo rekonstrukce stávající jímací soustavy: dispoziční řešení hromosvodu, pohledy s&nbsp;metodou valivé koule, grafický výpočet dostatečných vzdáleností, technická zpráva a&nbsp;výkaz výměr.",
+  "Dokumentace FVE": "Dokumentace pro distributora, stavební úřad (DSP, DPS), klienta i&nbsp;dokumentace skutečného provedení. Optimalizace rozložení panelů, výpočet materiálu a&nbsp;výroby, jednopólové a&nbsp;vícepólové schéma AC a&nbsp;DC rozvaděčů, situace, pohledy a&nbsp;kabelové trasy. Rozsah doplním podle vašich potřeb.",
+  "Analýzy a další": "Analýza rizika podle ČSN EN 62305-2, návrh přepěťových ochran, kontrola a&nbsp;audit projektové dokumentace a&nbsp;další podklady k&nbsp;projektům. Analýzu rizika si můžete spočítat i&nbsp;sami – <a href=\"#analyza-section\" class=\"text-link smoothscroll\">online</a>."
+ },
+ "aronline_heading": "Analýza rizika LPS online",
+ "aronline": [
+  "ARONLINE · webová aplikace",
+  "Analýzu rizika ochrany před bleskem podle ČSN EN 62305-2 si můžete spočítat sami v&nbsp;mé webové aplikaci. Údaje o&nbsp;budově načte z&nbsp;katastru, počet bouřkových dnů z&nbsp;mapy ČR a&nbsp;výsledek vám připraví jako dokumentaci v&nbsp;PDF i&nbsp;DOCX s&nbsp;vaším razítkem.",
+  "Určeno projektantům, revizním technikům a&nbsp;montážním firmám. Když analýza ukáže, že ochrana je potřeba, navrhnu vám hromosvod i&nbsp;přepěťové ochrany."
+ ],
+ "faq": [
+  [
+   "Jak dlouho trvá vypracování dokumentace?",
+   "Projekt FVE pro rodinný dům obvykle do 1 týdne, komerční FVE do 3 týdnů a hromosvod rodinného domu do 1 týdne od dodání kompletních podkladů. Termín rozsáhlejší dokumentace domluvíme individuálně."
+  ],
+  [
+   "Jaké podklady potřebujete?",
+   "Nejjednodušší je vyplnit formulář Zadání podkladů FVE nebo LPS v sekci Kalkulace. Hodí se výkresy nebo fotografie střechy, adresa stavby a představa o výkonu a technologii. Chybějící údaje doladíme e-mailem nebo telefonicky."
+  ],
+  [
+   "Pro koho dokumentaci zpracováváte?",
+   "Pro majitele rodinných domů, firmy, obce i školy, pro montážní firmy a jako externí projektant pro projekční kanceláře. Pracuji na dálku, takže zakázky zpracovávám po celé České republice."
+  ],
+  [
+   "Co je analýza rizika a kdy ji potřebuji?",
+   "Analýza rizika podle ČSN EN 62305-2 určuje, zda stavba potřebuje ochranu před bleskem a jakou (třída LPS, přepěťové ochrany). Typicky se zpracovává při návrhu nebo rekonstrukci hromosvodu a při instalaci FVE na střechu. Spočítat si ji můžete i sami online v aplikaci ARONLINE."
+  ],
+  [
+   "Potřebuje fotovoltaika na střeše hromosvod?",
+   "Záleží na konkrétní stavbě. Pokud objekt hromosvod má, je nutné ověřit, že panely leží v ochranném prostoru jímací soustavy a jsou dodrženy dostatečné vzdálenosti s – jinak se hromosvod upravuje. Pokud ho nemá, o potřebě ochrany rozhodne analýza rizika. Součástí návrhu jsou i přepěťové ochrany na straně DC i AC."
+  ],
+  [
+   "Kolik stojí projekt?",
+   "Orientační cenu zjistíte v kalkulačce v sekci Kalkulace. Přesnou nabídku vám pošlu po zaslání podkladů."
+  ]
+ ],
+ "contact": {
+  "email": "projekce@fvsol.cz",
+  "phone": "+420 605 783 000",
+  "address": "Remote - <br> Karviná, CZ"
+ },
+ "hero": {
+  "name": "FILIP HOLESZ",
+  "h1": "Externí projektant FVE a&nbsp;hromosvodů",
+  "lead": "Projektová dokumentace fotovoltaických elektráren a&nbsp;ochrany před bleskem pro rodinné domy, firmy, obce i&nbsp;školy – po celé ČR."
+ }
+}
