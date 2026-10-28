@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Administrace zakázek | FVSOL</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="../assets/admin/admin.css">
+</head>
+<body>
+  <header class="a-head">
+    <div class="wrap">
+      <a class="logo" href="#">FVSOL<span>.</span></a>
+      <nav class="a-tabs" aria-label="Administrace" hidden>
+        <a href="#" data-tab="orders">Zakázky</a>
+        <a href="#vzory" data-tab="templates">Vzory a firmy</a>
+        <a href="#nastaveni" data-tab="settings">Nastavení</a>
+      </nav>
+      <div class="a-user" id="a-user"></div>
+    </div>
+  </header>
+  <main class="a-main" id="app"><p>Načítám…</p></main>
+  <script src="../assets/vendor/supabase/supabase.js" defer></script>
+  <script src="../assets/vendor/leaflet/leaflet.js" defer></script>
+  <script type="module" src="../assets/admin/admin.js"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://fvsol.cz/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <image:image>
       <image:loc>https://fvsol.cz/images/portfolio/vipax-fve-pudorys.webp</image:loc>
       <image:caption>Rozšíření FVE na ploché střeše výrobní haly (Zlínský kraj) o 96 panelů na celkových 67,8 kWp – samozátěžová konstrukce, optimizéry Tigo, souběh kabelových tras s hromosvodem</image:caption>
@@ -75,5 +75,9 @@
       <image:loc>https://fvsol.cz/images/portfolio/analyza-rizika-vysledky.webp</image:loc>
       <image:caption>Analýza rizika ochrany před bleskem podle ČSN EN 62305-2 – součásti rizika R1–R4 a vyhodnocení</image:caption>
     </image:image>
+  </url>
+  <url>
+    <loc>https://fvsol.cz/zadani/</loc>
+    <lastmod>2026-10-28</lastmod>
   </url>
 </urlset>

@@ -1,0 +1,114 @@
+/* Úvodní stránka fvsol.cz */
+
+/* úvod */
+.hero { position: relative; overflow: hidden; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: stretch; min-height: min(78vh, 720px); }
+.hero-text { padding: 72px 0 40px; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 2; }
+.hero-name { font-weight: 500; font-size: 18px; color: var(--on-ink-muted); margin: 0 0 14px; letter-spacing: .02em; }
+.hero h1 { font-size: clamp(36px, 5vw, 60px); line-height: 1.05; letter-spacing: -0.02em; max-width: 14ch; }
+.hero-lead { font-size: 19px; color: #d3d8dc; max-width: 46ch; margin: 22px 0 32px; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-photo { position: relative; margin-right: calc(-1 * (max(0px, (100vw - var(--wrap)) / 2) + var(--gutter))); }
+.hero-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 72% 30%;
+  /* fotka nemá čistě černé pozadí – okraje se rozplynou do černé, aby nebyl vidět obdélník */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 28%), linear-gradient(to top, transparent 0, #000 18%);
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent 0, #000 28%), linear-gradient(to top, transparent 0, #000 18%); mask-composite: intersect; }
+.hero .stamp { margin: 0 0 56px; grid-template-columns: repeat(4, minmax(0, 1fr)); position: relative; z-index: 2; background: var(--ink); }
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; min-height: 0; }
+  .hero-photo { order: -1; height: 300px; margin: 0 calc(-1 * var(--gutter)); }
+  .hero-photo img { object-position: 78% 25%; -webkit-mask-image: linear-gradient(to top, transparent 0, #000 30%); mask-image: linear-gradient(to top, transparent 0, #000 30%); }
+  .hero-text { padding: 28px 0 32px; }
+  .hero .stamp { grid-template-columns: 1fr 1fr; margin-bottom: 40px; }
+  .hero .stamp > div:nth-child(2) { border-right: 0; }
+  .hero .stamp > div:nth-child(-n+2) { border-bottom: 1px solid var(--on-ink-line); }
+}
+@media (max-width: 420px) { .hero-cta .btn { width: 100%; } }
+
+/* služby – mřížka jako výkresové pole */
+.services { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+.service { padding: 28px 28px 30px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: flex; flex-direction: column; }
+.service h3 { font-size: 22px; margin-bottom: 12px; }
+.service p { color: var(--text); }
+.service ul { list-style: none; margin: 4px 0 22px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.service li { font: 500 14px/1.3 var(--font-cond); padding: 5px 9px; background: var(--wash); border-radius: var(--radius); }
+.service .note { font-size: 15px; color: var(--muted); }
+.service .actions { margin-top: auto; padding-top: 6px; }
+@media (max-width: 760px) { .services { grid-template-columns: 1fr; } .service { padding: 24px 20px; } }
+
+/* portfolio */
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filters button { font: 500 15px var(--font); padding: 8px 12px; border: 1px solid var(--line); background: var(--paper); border-radius: var(--radius); cursor: pointer; color: var(--text); }
+.filters button[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: #fff; }
+.intro { color: var(--muted); max-width: 70ch; margin-bottom: 28px; }
+.works { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 24px; }
+.work { margin: 0; }
+.work[hidden] { display: none; }
+.work button { display: block; width: 100%; padding: 0; border: 1px solid var(--line); background: #fff; cursor: zoom-in; }
+.work button:hover { border-color: var(--ink); }
+.work img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.work figcaption { padding-top: 10px; }
+.work h3 { font-size: 17px; }
+.work p { margin: 2px 0 0; font-size: 15px; color: var(--muted); }
+@media (max-width: 900px) { .works { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .works { grid-template-columns: 1fr; } }
+
+/* náhled výkresu */
+.lightbox { border: 0; padding: 0; max-width: min(1400px, 96vw); width: 96vw; max-height: 94vh; background: var(--paper); color: var(--text); }
+.lightbox::backdrop { background: rgba(0, 0, 0, .86); }
+.lightbox figure { margin: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; max-height: 94vh; }
+.lightbox img { width: 100%; height: 100%; max-height: calc(94vh - 92px); object-fit: contain; background: #fff; }
+.lightbox figcaption { display: flex; gap: 16px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--line); font-size: 15px; }
+.lightbox figcaption p { margin: 0; flex: 1; }
+.lightbox .lb-nav { display: flex; gap: 6px; }
+
+/* o mně */
+.about { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 56px; align-items: center; }
+.about img { width: 100%; aspect-ratio: 1; object-fit: cover; filter: grayscale(1); }
+.about h2 { font-size: clamp(28px, 3.2vw, 36px); margin-bottom: 22px; }
+.about .lead { font-size: 19px; }
+@media (max-width: 900px) { .about { grid-template-columns: 1fr; gap: 28px; } .about img { max-width: 420px; } }
+
+/* ARONLINE */
+.aronline { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.aronline h2 { font-size: clamp(26px, 3vw, 34px); margin: 4px 0 16px; }
+.aronline .kicker { color: var(--red); font-weight: 500; margin: 0; }
+.aronline .actions { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+@media (max-width: 900px) { .aronline { grid-template-columns: 1fr; gap: 24px; } }
+
+/* termíny */
+.terms { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.terms .v { display: flex; align-items: baseline; gap: 8px; font-weight: 600; }
+.terms .num { font: 600 44px/1.05 var(--font-cond); font-variant-numeric: tabular-nums; min-width: 1ch; }
+.terms .unit { font-size: 18px; }
+.terms .v > [aria-hidden] { display: flex; align-items: baseline; gap: 8px; }
+@media (max-width: 760px) {
+  .terms { grid-template-columns: 1fr 1fr; }
+  .terms > div:nth-child(2) { border-right: 0; }
+  .terms > div:nth-child(-n+2) { border-bottom: 1px solid currentColor; }
+}
+
+/* kalkulace */
+.calc-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+
+/* dotazy */
+.faq { max-width: 860px; border-top: 1px solid var(--rule); }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary { list-style: none; cursor: pointer; padding: 18px 40px 18px 0; position: relative; font-weight: 600; font-size: 18px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 4px; top: 14px; font-size: 26px; font-weight: 400; color: var(--red); }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { margin: 0 0 18px; max-width: 72ch; }
+
+/* kontakt */
+.contact { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: 56px; }
+.contact-info { display: grid; gap: 18px; align-content: start; }
+.contact-info .k { font: 500 13px/1.3 var(--font-cond); color: var(--muted); margin: 0 0 2px; }
+.contact-info a, .contact-info address { font-size: 19px; font-weight: 500; font-style: normal; text-decoration: none; }
+.contact-info a:hover { text-decoration: underline; text-decoration-color: var(--red); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+#form-message-success, #form-message-warning { display: none; margin-top: 16px; padding: 10px 14px; border-left: 3px solid; }
+#form-message-success { border-color: var(--ok); background: #eef6f1; }
+#form-message-warning { border-color: var(--red); background: #fbeef0; }
+@media (max-width: 900px) { .contact { grid-template-columns: 1fr; gap: 36px; } }
+@media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }

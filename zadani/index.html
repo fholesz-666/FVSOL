@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zadání zakázky | FVSOL</title>
+  <meta name="description" content="Zadejte projekt FVE, hromosvodu nebo překreslení výkresů do DWG/DXF. Vyberete službu, nahrajete podklady a odpovíte na pár otázek.">
+  <link rel="canonical" href="https://fvsol.cz/zadani/">
+  <meta name="theme-color" content="#000000">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../images/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="preload" href="../assets/fonts/ibm-plex-sans-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="../assets/zakazky/wizard.css">
+</head>
+<body>
+  <a class="skip" href="#app">Přeskočit na formulář</a>
+  <header class="z-head">
+    <div class="wrap">
+      <a class="logo" href="../">FVSOL<span>.</span></a>
+      <span class="z-save" id="z-save" role="status" aria-live="polite"></span>
+      <a class="z-back" href="../#contact-section">Kontakt</a>
+    </div>
+  </header>
+  <main class="z-main">
+    <div class="wrap" id="app" aria-live="polite">
+      <noscript><p>Formulář potřebuje zapnutý JavaScript. Zakázku můžete poslat i e-mailem na <a href="mailto:projekce@fvsol.cz">projekce@fvsol.cz</a>.</p></noscript>
+    </div>
+  </main>
+  <footer class="site-foot">
+    <div class="wrap">
+      <a href="mailto:projekce@fvsol.cz">projekce@fvsol.cz</a>
+      <a href="tel:+420605783000">+420 605 783 000</a>
+      <span class="copy">FVSOL – Filip Holesz</span>
+    </div>
+  </footer>
+  <script src="../assets/vendor/leaflet/leaflet.js" defer></script>
+  <script type="module" src="../assets/zakazky/wizard.js"></script>
+</body>
+</html>
