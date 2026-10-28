@@ -1,13 +1,13 @@
 # FVSOL – zakázky z webu
 
-Web zůstává statický na GitHub Pages. Zakázky, soubory a postup běží v Supabase projektu **zakazky-crm** (stejný jako CRM, stejný účet), e-maily přes **Brevo**.
+Web zůstává statický na GitHub Pages. Zakázky, soubory a postup běží v Supabase projektu **zakazky-crm** (stejný jako CRM, stejný účet), e-maily přes **EmailJS** (stejný účet jako kontaktní formulář), případně Brevo.
 
 ```
 fvsol.cz (GitHub Pages)                        Supabase „zakazky-crm“ (EU, Frankfurt)
 ├─ /            úvodní stránka                 ├─ Edge funkce fvsol-intake  ← formulář (bez účtu, tajný odkaz)
 ├─ /zadani/     formulář + stránka zakázky ──► │    ├─ ČÚZK (RÚIAN, výškopis) – adresa, parcela, budova
 └─ /admin/      administrace (přihlášení) ───► ├─ Edge funkce fvsol-staff   ← administrace (jen tabulka staff)
-                                                │    ├─ Brevo – e-maily
+                                                │    ├─ EmailJS (nebo Brevo) – e-maily
                                                 │    └─ CRM: tabulka jobs (prostor „FVE a LPS“)
                                                 ├─ Postgres: orders, order_files, order_events, … (RLS)
                                                 └─ Storage: fvsol-orders, fvsol-templates (soukromé)
@@ -107,7 +107,7 @@ Omezení: obrys budovy je jen u digitalizované katastrální mapy a výška z d
 - Soubory jsou v soukromých bucketech, stahuje se přes podepsané odkazy platné 5–10 minut. Zákazník stáhne jen své podklady a uvolněné ověřené výstupy.
 - Nahrávání: povolené typy (PDF, DWG, DXF, obrázky, Office, ZIP), nejvýše 50 MB na soubor, 40 souborů a 150 MB na zakázku. Server ověří skutečnou velikost v úložišti.
 - Proti spamu: limity na IP (IP se neukládá, jen otisk se solí), past na roboty, minimální doba vyplnění 4 s, úklid starých rozpracovaných zadání.
-- Klíče (service role, Brevo) jsou jen v proměnných Edge funkcí. Ve webu je jen publishable key, stejně jako u CRM.
+- Klíče (service role, soukromý klíč EmailJS) jsou jen v proměnných Edge funkcí. Ve webu je jen publishable key, stejně jako u CRM.
 - Historie zakázky (`order_events`) je jen pro zápis.
 
 ## Provoz, limity a náklady
@@ -116,10 +116,11 @@ Omezení: obrys budovy je jen u digitalizované katastrální mapy a výška z d
 |---|---|---|---|
 | GitHub Pages | zdarma | statický web | 0 Kč |
 | Supabase (stávající projekt) | Free | DB 500 MB, úložiště 1 GB, přenos 5 GB/měs., soubor max. 50 MB, 500 000 volání funkcí/měs., 2 projekty; **projekt se po týdnu nečinnosti uspí**; bez automatických záloh | 0 Kč; Pro od 25 USD/měs. |
-| Brevo | Free | 300 e-mailů/den, v patičce „Sent with Brevo“ | 0 Kč |
+| EmailJS (stávající účet) | Free | 200 e-mailů/měsíc, 2 šablony (jednu má kontaktní formulář), požadavek do 50 kB, 1 e-mail/s | 0 Kč |
+| Brevo (volitelně místo EmailJS) | Free | 300 e-mailů/den, v patičce „Sent with Brevo“ | 0 Kč |
 | ČÚZK | veřejné služby | nezveřejněné | 0 Kč |
 
-Podmínky jsem ověřil 27. 10. 2026 na supabase.com/pricing a v recenzi Brevo z 1. 10. 2026. Před ostrým provozem je zkontrolujte.
+Podmínky jsem ověřil 27.–28. 10. 2026 (supabase.com/pricing, recenze Brevo z 1. 10. 2026, přehled EmailJS free tarifu z 8. 10. 2026). Před ostrým provozem je zkontrolujte.
 
 - **Úložiště 1 GB je hlavní limit.** Obsazení ukazuje administrace (Nastavení). Hotové zakázky archivujte k sobě a staré podklady mažte, nebo přejděte na Pro (100 GB).
 - **Zálohy:** free tarif je nemá. Doporučuji jednou týdně `pg_dump` (Supabase CLI `supabase db dump`) a stažení bucketů, nebo Pro tarif s denními zálohami.
@@ -133,11 +134,17 @@ Nic z toho se neprovede samo. Každý krok potvrzujete vy.
 2. **Serverové funkce:** nasadit `fvsol-intake` a `fvsol-staff`, obě s **verify_jwt = false** (ověření dělají samy):
    `supabase functions deploy fvsol-intake --no-verify-jwt` a `supabase functions deploy fvsol-staff --no-verify-jwt`.
 3. **Proměnné funkcí** (Supabase → Edge Functions → Secrets):
-   - `BREVO_API_KEY`: klíč z Brevo (SMTP & API → API keys),
-   - `MAIL_FROM=projekce@fvsol.cz`, `MAIL_FROM_NAME=FVSOL – Filip Holesz`, `NOTIFY_EMAIL`: kam chodí upozornění na nové zakázky,
+   - `EMAILJS_PRIVATE_KEY`: EmailJS → Account → API keys → Private Key,
+   - `EMAILJS_TEMPLATE_ID`: ID nové šablony (viz krok 4),
+   - volitelně `EMAILJS_SERVICE_ID` (výchozí `service_amm7txp` jako kontaktní formulář) a `EMAILJS_PUBLIC_KEY`,
+   - `NOTIFY_EMAIL`: kam chodí upozornění na nové zakázky, `MAIL_REPLY_TO` (výchozí projekce@fvsol.cz),
+   - místo EmailJS lze použít Brevo: `BREVO_API_KEY`, `MAIL_FROM`, `MAIL_FROM_NAME`,
    - `IP_SALT`: libovolný náhodný řetězec,
    - volitelně `SITE_URL` (výchozí https://fvsol.cz), `FVSOL_ORIGINS` (výchozí fvsol.cz, www.fvsol.cz, fholesz-666.github.io), `CRM_WORKSPACE_ID`.
-4. **Brevo:** ověřit doménu fvsol.cz (Senders & Domains → DKIM + DMARC záznamy v DNS), jinak e-maily z projekce@fvsol.cz skončí ve spamu.
+4. **EmailJS:**
+   - Account → Security: zapnout *Allow EmailJS API for non-browser applications* (e-maily posílá server, ne prohlížeč),
+   - Email Templates → Create New Template: *To Email* `{{to_email}}`, *Subject* `{{subject}}`, *From Name* `{{from_name}}`, *Reply To* `{{reply_to}}`, obsah v editoru kódu jen `{{{html}}}` (tři složené závorky – HTML se nevkládá jako text). ID šablony → `EMAILJS_TEMPLATE_ID`.
+   - E-maily odcházejí ze schránky připojené ve službě `service_amm7txp`, takže není potřeba nastavovat DNS. (Při použití Brevo je naopak nutné ověřit doménu fvsol.cz – DKIM a DMARC.)
 5. **Web:** sloučit větev `redesign-zakazky` do `main` (pull request). GitHub Pages ji do pár minut zveřejní.
 6. **Ověření v ostrém provozu:** odeslat zkušební zakázku → zkontrolovat e-mail, CRM a administraci → v Nastavení poslat zkušební e-mail → v detailu spustit „Situace DXF“ (po potvrzení) a otevřít DXF v CADu.
 

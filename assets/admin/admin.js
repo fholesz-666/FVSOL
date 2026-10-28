@@ -456,8 +456,8 @@ function viewTemplates() {
 function viewSettings() {
   const u = S.usage;
   return `<h1>Nastavení</h1>
-    <section class="panel"><h2>E-maily (Brevo)</h2>
-      <p>Zkušební e-mail ověří, že je nastavený klíč BREVO_API_KEY a odesílací adresa.</p>
+    <section class="panel"><h2>E-maily</h2>
+      <p>Odesílá se přes EmailJS (stejný účet jako kontaktní formulář). Zkušební e-mail ověří, že jsou v Supabase nastavené EMAILJS_PRIVATE_KEY a EMAILJS_TEMPLATE_ID.</p>
       <div class="inline-form"><div class="field"><label for="test-to">Komu</label><input class="input" id="test-to" value="${esc(S.user?.email || "")}"></div><button class="btn btn-sm" data-act="email-test">Poslat zkušební e-mail</button></div>
     </section>
     <section class="panel"><h2>Úložiště</h2>

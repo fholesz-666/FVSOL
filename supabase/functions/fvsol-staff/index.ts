@@ -8,7 +8,7 @@ import { analyzeFile } from "./shared/analyze.ts";
 import { buildingsAround, GeoError, lookupSite, parcelsAround } from "./shared/cuzk.ts";
 import { fillDocx, listPlaceholders } from "./shared/docx.ts";
 import { situaceDxf } from "./shared/dxf.ts";
-import { mailConfirmed, mailInfoRequest, mailReleased, mailTest, orderLink, sendMail } from "./shared/mail.ts";
+import { mailConfirmed, mailInfoRequest, mailReleased, mailProvider, mailTest, orderLink, sendMail } from "./shared/mail.ts";
 import {
   BUCKET, cleanupDrafts, crmApplyWorkflow, crmCreate, crmNote, crmSyncMissing, evaluateOrder, filesOf, issueToken,
   mergeSite, orderById, type Order,
@@ -289,7 +289,8 @@ const actions: Record<string, (b: Body, ctx: Ctx) => Promise<unknown>> = {
 
   async email_test(b, ctx) {
     const m = mailTest();
-    return sendMail(null, "test", { email: str(b.to, 200) || ctx.email }, m.subject, m.html);
+    const r = await sendMail(null, "test", { email: str(b.to, 200) || ctx.email }, m.subject, m.html);
+    return { ...r, provider: mailProvider() };
   },
 
   async storage_usage() {

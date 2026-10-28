@@ -95,3 +95,40 @@ Deno.test({
 Deno.test("geometrie: obvod obdélníku", () => {
   assertEquals(Math.round(polygonPerimeter([[0, 0], [20, 0], [20, 10], [0, 10]])), 60);
 });
+
+Deno.test("e-mail přes EmailJS: šablona, tajný klíč jen na serveru, odstup 1 s", async () => {
+  const { sendMail, mailProvider, mailConfirmation } = await import("./mail.ts");
+  const calls: { body: any; at: number }[] = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async (_url: string, init: any) => {
+    calls.push({ body: JSON.parse(init.body), at: Date.now() });
+    return new Response("OK", { status: 200 });
+  }) as typeof fetch;
+  try {
+    assertEquals(mailProvider(), null);
+    const none = await sendMail(null, "test", { email: "a@b.cz" }, "x", "<p>x</p>");
+    assertEquals(none.sent, false);
+    Deno.env.set("EMAILJS_PRIVATE_KEY", "priv-test");
+    Deno.env.set("EMAILJS_TEMPLATE_ID", "template_fvsol");
+    assertEquals(mailProvider(), "emailjs");
+    const m = mailConfirmation("Z26-0001", "tok", "Fotovoltaika (FVE)", ["Fotka elektroměrového rozvaděče"]);
+    const [r1, r2] = await Promise.all([
+      sendMail(null, "potvrzeni", { email: "jan@example.cz", name: "Jan" }, m.subject, m.html),
+      sendMail(null, "nova", { email: "projekce@fvsol.cz" }, "Nové zadání", "<p>x</p>"),
+    ]);
+    assert(r1.sent && r2.sent);
+    assertEquals(calls.length, 2);
+    const b = calls[0].body;
+    assertEquals(b.template_id, "template_fvsol");
+    assertEquals(b.accessToken, "priv-test");
+    assertEquals(b.template_params.to_email, "jan@example.cz");
+    assertEquals(b.template_params.subject, "Zadání Z26-0001 jsem přijal");
+    assert(b.template_params.html.includes("Fotka elektroměrového rozvaděče"));
+    assert(JSON.stringify(b).length < 50_000, "EmailJS bere požadavky do 50 kB");
+    assert(calls[1].at - calls[0].at >= 1000, "EmailJS dovolí 1 požadavek za sekundu");
+  } finally {
+    globalThis.fetch = realFetch;
+    Deno.env.delete("EMAILJS_PRIVATE_KEY");
+    Deno.env.delete("EMAILJS_TEMPLATE_ID");
+  }
+});

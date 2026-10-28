@@ -1,6 +1,9 @@
 /**
- * Transakční e-maily přes Brevo (https://api.brevo.com/v3/smtp/email).
- * Bez BREVO_API_KEY se nic neodesílá – událost se zapíše jako „neodesláno“ a systém funguje dál.
+ * Transakční e-maily.
+ *  1. EmailJS (stejný účet jako kontaktní formulář webu) – když jsou nastavené EMAILJS_PRIVATE_KEY a EMAILJS_TEMPLATE_ID.
+ *     Odesílá se ze schránky připojené v EmailJS, šablona má předmět {{subject}}, příjemce {{to_email}} a obsah {{{html}}}.
+ *  2. Brevo – když je nastavený BREVO_API_KEY.
+ *  Bez nastavení se nic neodesílá – událost se zapíše jako „neodesláno“ a systém funguje dál.
  * Texty nikdy netvrdí víc, než odpovídá skutečnému stavu zakázky.
  */
 import { env, logEvent, SITE_URL } from "./util.ts";
@@ -26,34 +29,81 @@ const list = (items: string[]) => `<ul style="margin:0 0 12px;padding-left:20px;
 
 export const orderLink = (token: string) => `${SITE_URL()}/zadani/#t=${encodeURIComponent(token)}`;
 
-export async function sendMail(orderId: string | null, kind: string, to: { email: string; name?: string }, subject: string, html: string): Promise<MailResult> {
-  const key = env("BREVO_API_KEY");
-  const from = env("MAIL_FROM", "projekce@fvsol.cz");
-  const fromName = env("MAIL_FROM_NAME", "FVSOL – Filip Holesz");
-  let result: MailResult;
-  if (!key) result = { sent: false, reason: "Chybí BREVO_API_KEY – e-mail se neodeslal." };
-  else {
+export function mailProvider(): "emailjs" | "brevo" | null {
+  if (env("EMAILJS_PRIVATE_KEY") && env("EMAILJS_TEMPLATE_ID")) return "emailjs";
+  if (env("BREVO_API_KEY")) return "brevo";
+  return null;
+}
+
+// EmailJS povoluje 1 požadavek za sekundu – e-maily z jedné instance funkce jdou za sebou s odstupem
+let emailjsQueue: Promise<unknown> = Promise.resolve();
+let emailjsLast = 0;
+
+async function viaEmailjs(to: { email: string; name?: string }, subject: string, html: string): Promise<MailResult> {
+  const run = async (): Promise<MailResult> => {
+    const wait = emailjsLast + 1100 - Date.now();
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    emailjsLast = Date.now();
     try {
-      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
         method: "POST",
-        headers: { "api-key": key, "Content-Type": "application/json", Accept: "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sender: { email: from, name: fromName },
-          to: [{ email: to.email, name: to.name || undefined }],
-          replyTo: { email: env("MAIL_REPLY_TO", from) },
-          subject,
-          htmlContent: html,
-          tags: ["fvsol", kind],
+          service_id: env("EMAILJS_SERVICE_ID", "service_amm7txp"),
+          template_id: env("EMAILJS_TEMPLATE_ID"),
+          user_id: env("EMAILJS_PUBLIC_KEY", "jcI-Mfxs2Tj1RcLNA"),
+          accessToken: env("EMAILJS_PRIVATE_KEY"),
+          template_params: {
+            to_email: to.email,
+            to_name: to.name || "",
+            subject,
+            html,
+            reply_to: env("MAIL_REPLY_TO", "projekce@fvsol.cz"),
+            from_name: env("MAIL_FROM_NAME", "FVSOL – Filip Holesz"),
+          },
         }),
         signal: AbortSignal.timeout(10_000),
       });
-      const j = await res.json().catch(() => ({}));
-      result = res.ok ? { sent: true, id: j.messageId } : { sent: false, reason: `Brevo odpovědělo ${res.status}: ${j.message ?? ""}`.trim() };
+      const text = (await res.text().catch(() => "")).slice(0, 200);
+      return res.ok ? { sent: true, id: "emailjs" } : { sent: false, reason: `EmailJS odpověděl ${res.status}: ${text}`.trim() };
     } catch (e) {
-      result = { sent: false, reason: `Brevo není dostupné: ${String(e).slice(0, 120)}` };
+      return { sent: false, reason: `EmailJS není dostupný: ${String(e).slice(0, 120)}` };
     }
+  };
+  const p = emailjsQueue.then(run, run);
+  emailjsQueue = p.catch(() => undefined);
+  return p;
+}
+
+async function viaBrevo(kind: string, to: { email: string; name?: string }, subject: string, html: string): Promise<MailResult> {
+  const from = env("MAIL_FROM", "projekce@fvsol.cz");
+  try {
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": env("BREVO_API_KEY"), "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        sender: { email: from, name: env("MAIL_FROM_NAME", "FVSOL – Filip Holesz") },
+        to: [{ email: to.email, name: to.name || undefined }],
+        replyTo: { email: env("MAIL_REPLY_TO", from) },
+        subject,
+        htmlContent: html,
+        tags: ["fvsol", kind],
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    const j = await res.json().catch(() => ({}));
+    return res.ok ? { sent: true, id: j.messageId } : { sent: false, reason: `Brevo odpovědělo ${res.status}: ${j.message ?? ""}`.trim() };
+  } catch (e) {
+    return { sent: false, reason: `Brevo není dostupné: ${String(e).slice(0, 120)}` };
   }
-  if (orderId) await logEvent(orderId, "email", result.sent ? `E-mail odeslán: ${subject}` : `E-mail neodeslán: ${subject}`, { kind, to: to.email, ...result });
+}
+
+export async function sendMail(orderId: string | null, kind: string, to: { email: string; name?: string }, subject: string, html: string): Promise<MailResult> {
+  const provider = mailProvider();
+  const result: MailResult = provider === "emailjs" ? await viaEmailjs(to, subject, html)
+    : provider === "brevo" ? await viaBrevo(kind, to, subject, html)
+    : { sent: false, reason: "Odesílání e-mailů není nastavené (EmailJS ani Brevo) – e-mail se neodeslal." };
+  if (orderId) await logEvent(orderId, "email", result.sent ? `E-mail odeslán: ${subject}` : `E-mail neodeslán: ${subject}`, { kind, to: to.email, provider, ...result });
   return result;
 }
 
