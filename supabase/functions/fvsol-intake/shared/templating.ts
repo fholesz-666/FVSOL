@@ -30,6 +30,8 @@ export const TEMPLATE_KEYS: Record<string, string> = {
   "firma.ico": "zpracovatel – IČO",
   "firma.adresa": "zpracovatel – adresa",
   "projektant.jmeno": "projektant",
+  "autorizace.osoba": "autorizovaná osoba (ČKAIT)",
+  "dokumentace.stupen": "stupeň dokumentace",
 };
 
 const known = (v: unknown) => (v == null || v === "" || v === core.UNKNOWN ? null : String(v));
@@ -68,5 +70,8 @@ export function templateValues(order: any, profile: any | null, designer = "Fili
     "firma.ico": profile?.ico ?? null,
     "firma.adresa": profile?.address ?? null,
     "projektant.jmeno": designer,
+    // autorizaci a stupeň určuje projektant u každé zakázky – ve výstupu zůstanou žlutě k doplnění
+    "autorizace.osoba": null,
+    "dokumentace.stupen": null,
   } as Record<string, string | null>;
 }
