@@ -131,8 +131,11 @@ Podmínky jsem ověřil 27.–28. 10. 2026 (supabase.com/pricing, recenze Brevo 
 Nic z toho se neprovede samo. Každý krok potvrzujete vy.
 
 1. **Databáze:** spustit migraci `supabase/migrations/20261027120000_fvsol_web_orders.sql` (SQL editor v Supabase nebo `supabase db push`). Pouze přidává tabulky a buckety, CRM nemění.
-2. **Serverové funkce:** nasadit `fvsol-intake` a `fvsol-staff`, obě s **verify_jwt = false** (ověření dělají samy):
-   `supabase functions deploy fvsol-intake --no-verify-jwt` a `supabase functions deploy fvsol-staff --no-verify-jwt`.
+2. **Serverové funkce:** `fvsol-intake` a `fvsol-staff`, obě s **verify_jwt = false** (ověření dělají samy).
+   Nasazené jsou jako jednořádkový vstupní soubor, který načte kód z tohoto repozitáře v pevně daném commitu:
+   `import "https://raw.githubusercontent.com/fholesz-666/FVSOL/<SHA>/supabase/functions/fvsol-intake/index.ts";`
+   Supabase kód při nasazení zabalí, za běhu už GitHub nepotřebuje. Aktualizace: `node scripts/sync-functions.mjs` → commit a push → v obou funkcích přepsat SHA → nasadit.
+   Alternativa s CLI: `supabase functions deploy fvsol-intake --no-verify-jwt` a totéž pro `fvsol-staff`.
 3. **Proměnné funkcí** (Supabase → Edge Functions → Secrets):
    - `EMAILJS_PRIVATE_KEY`: EmailJS → Account → API keys → Private Key,
    - `EMAILJS_TEMPLATE_ID`: ID nové šablony (viz krok 4),
