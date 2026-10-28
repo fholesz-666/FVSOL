@@ -1,0 +1,141 @@
+/* FVSOL – úpravy nad šablonou (načítá se po css/style.css) */
+
+/* Úvod */
+.cover-v1 p.heading {
+  line-height: 1.15;
+  margin: 0 0 .5rem;
+}
+.cover-v1 h1.subheading {
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+.cover-v1 .hero-lead {
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, .8);
+  max-width: 640px;
+  margin: 0 auto 1.75rem;
+}
+.cover-v1 .hero-cta .btn {
+  margin: 0 .35rem .75rem;
+}
+@media (max-width: 575.98px) {
+  .cover-v1 .hero-lead { font-size: 16px; }
+  .cover-v1 .hero-cta .btn { display: block; margin: 0 auto .75rem; max-width: 300px; }
+}
+
+/* Zvýrazněné tlačítko (barva tečky v logu) */
+.btn.btn-outline-pill.btn-custom-light.btn-accent {
+  border-color: #D63447;
+  background-color: #D63447;
+  color: #fff;
+}
+.btn.btn-outline-pill.btn-custom-light.btn-accent:hover,
+.btn.btn-outline-pill.btn-custom-light.btn-accent:focus {
+  background-color: #b92a3b;
+  border-color: #b92a3b;
+}
+
+/* Portfolio */
+.portfolio-intro {
+  color: rgba(255, 255, 255, .6);
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 760px;
+}
+.filter-wrap .filter a {
+  display: inline-block;
+}
+@media (min-width: 992px) {
+  .filter-wrap .filter { text-align: right; }
+}
+.portfolio-item img {
+  background: #fff;
+}
+
+/* Odkazy v textu */
+.unslate_co--section .text-link,
+.faq-item a {
+  color: #fff;
+  border-bottom: 1px solid #D63447;
+}
+.text-muted-light {
+  color: rgba(255, 255, 255, .6);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Analýza rizika online */
+.aronline-box {
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-left: 4px solid #D63447;
+  background: #0d0d0d;
+  padding: 2.25rem 2rem;
+}
+.aronline-box .heading-h2 {
+  margin-bottom: 1rem;
+}
+.aronline-kicker {
+  font-family: "Arimo", sans-serif;
+  font-size: 12px;
+  letter-spacing: .12rem;
+  text-transform: uppercase;
+  color: #D63447;
+  margin-bottom: .25rem;
+}
+@media (max-width: 575.98px) {
+  .aronline-box { padding: 1.5rem 1.25rem; }
+  .aronline-box .btn { display: block; }
+}
+
+/* Časté dotazy */
+.faq-list {
+  max-width: 820px;
+  margin: 0 auto;
+}
+.faq-item {
+  border-bottom: 1px solid rgba(255, 255, 255, .15);
+  padding: 1rem 0;
+}
+.faq-item summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.5;
+  list-style: none;
+  position: relative;
+  padding-right: 2rem;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-weight: 300;
+  font-size: 24px;
+  color: #D63447;
+}
+.faq-item[open] summary::after { content: "–"; }
+.faq-item p {
+  margin: .75rem 0 0;
+  color: rgba(255, 255, 255, .75);
+  line-height: 1.7;
+}
+
+/* Patička */
+.site-footer-fvsol {
+  padding: 2rem 0 2.5rem;
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, .55);
+}
+.site-footer-fvsol a {
+  color: rgba(255, 255, 255, .8);
+}
+.site-footer-fvsol a:hover {
+  color: #fff;
+}
+.site-footer-fvsol .footer-links span {
+  margin: 0 .5rem;
+}

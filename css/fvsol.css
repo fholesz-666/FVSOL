@@ -139,3 +139,24 @@
 .site-footer-fvsol .footer-links span {
   margin: 0 .5rem;
 }
+
+/* Zadání zakázky */
+.unslate_co--site-nav .site-nav-ul li a.nav-order {
+  color: #fff;
+  border: 1px solid #D63447;
+  border-radius: 30px;
+  padding: 4px 14px;
+}
+.unslate_co--site-nav .site-nav-ul li a.nav-order:hover,
+.unslate_co--site-nav .site-nav-ul li a.nav-order:focus {
+  background: #D63447;
+  color: #fff;
+}
+.unslate_co--site-mobile-menu .site-nav-wrap a.nav-order {
+  color: #D63447;
+}
+.feature-v1 .order-link {
+  margin: 1rem 0 0;
+  font-weight: 500;
+  line-height: 1.9;
+}

@@ -132,3 +132,9 @@ Deno.test("e-mail přes EmailJS: šablona, tajný klíč jen na serveru, odstup 
     Deno.env.delete("EMAILJS_TEMPLATE_ID");
   }
 });
+
+Deno.test("ČÚZK: hlavičky dotazu jsou platné (jen ASCII)", async () => {
+  const { CUZK_HEADERS } = await import("./cuzk.ts");
+  new Request("https://ags.cuzk.gov.cz/", { headers: CUZK_HEADERS });
+  for (const v of Object.values(CUZK_HEADERS)) assert(/^[\x20-\x7e]*$/.test(v), v);
+});

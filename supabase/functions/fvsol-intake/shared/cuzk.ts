@@ -21,6 +21,9 @@ export const CUZK = {
 
 export class GeoError extends Error {}
 
+// hlavičky HTTP smí obsahovat jen ASCII (pomlčka „–“ v User-Agent shodila všechny dotazy na ČÚZK)
+export const CUZK_HEADERS = { Accept: "application/json", "User-Agent": "FVSOL/1.0 (fvsol.cz - zadani zakazky)" };
+
 const qs = (o: Record<string, string>) => new URLSearchParams(o).toString();
 const DAY = 24 * 3600 * 1000;
 
@@ -34,7 +37,7 @@ export async function getJson<T>(url: string, ttlMs = 30 * DAY): Promise<T> {
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const res = await fetch(url, {
-        headers: { Accept: "application/json", "User-Agent": "FVSOL/1.0 (fvsol.cz – zadani zakazky)" },
+        headers: CUZK_HEADERS,
         signal: AbortSignal.timeout(10_000),
       });
       if (!res.ok) throw new GeoError(`Služba ČÚZK odpověděla chybou HTTP ${res.status}`);
