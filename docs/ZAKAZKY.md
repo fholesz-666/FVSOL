@@ -4,7 +4,7 @@ Web zůstává statický na GitHub Pages. Zakázky, soubory a postup běží v S
 
 ```
 fvsol.cz (GitHub Pages)                        Supabase „zakazky-crm“ (EU, Frankfurt)
-├─ /            úvodní stránka                 ├─ Edge funkce fvsol-intake  ← formulář (bez účtu, tajný odkaz)
+├─ /            původní web + odkazy na zadání ├─ Edge funkce fvsol-intake  ← formulář (bez účtu, tajný odkaz)
 ├─ /zadani/     formulář + stránka zakázky ──► │    ├─ ČÚZK (RÚIAN, výškopis) – adresa, parcela, budova
 └─ /admin/      administrace (přihlášení) ───► ├─ Edge funkce fvsol-staff   ← administrace (jen tabulka staff)
                                                 │    ├─ EmailJS (nebo Brevo) – e-maily
@@ -165,4 +165,4 @@ python3 tests/e2e/wizard_e2e.py http://127.0.0.1:8812 http://127.0.0.1:8813 <fix
 python3 tests/e2e/admin_e2e.py  http://127.0.0.1:8812 <fixtures> <screenshoty>
 ```
 
-`tests/content.test.mjs` porovnává portfolio, text o mně, služby, ARONLINE, FAQ a kontakty se snímkem původní stránky. Pokud chráněný obsah změníte záměrně, aktualizujte i `tests/fixtures/protected-content.json`.
+Úvodní stránka zůstala v původním vzhledu. Přibyly jen odkazy na zadání zakázky (menu, úvod, karty služeb, tlačítka v Kalkulaci místo Google formulářů) a blok stylů na konci `css/fvsol.css`. `tests/content.test.mjs` hlídá, že se `index.html` od původní verze (`tests/fixtures/index.original.html`) liší jen těmito odkazy a že se nezměnily jiné původní soubory.

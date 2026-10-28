@@ -1,101 +1,77 @@
-// Chráněný obsah webu: portfolio, text o mně, služby, ARONLINE, FAQ a kontakty musí zůstat beze změny.
-// Snapshot tests/fixtures/protected-content.json byl vytažen z původního index.html (tag zaloha-pred-redesignem-2026-10-27).
+// Původní web zůstává beze změny. Jediné dovolené zásahy jsou odkazy na zadání zakázky vypsané níže
+// a blok stylů „Zadání zakázky“ připojený na konec css/fvsol.css.
+// tests/fixtures/index.original.html a fvsol.original.css jsou kopie z větve main před úpravami.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const root = new URL("..", import.meta.url);
-const P = JSON.parse(readFileSync(new URL("tests/fixtures/protected-content.json", root), "utf8"));
-const html = readFileSync(new URL("index.html", root), "utf8");
-const dec = (s) => s.replace(/&nbsp;/g, " ").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
-const text = (s) => dec(s.replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim();
-const norm = (s) => dec(s).replace(/\s+/g, " ").trim();
+const read = (p) => readFileSync(new URL(p, root), "utf8");
+const original = read("tests/fixtures/index.original.html");
+const current = read("index.html");
 
-test("portfolio: všech 18 ukázek se stejnými obrázky, popisky a kategoriemi", () => {
-  const works = [...html.matchAll(/<figure class="work" data-cats="([^"]+)">\s*<button type="button" data-full="([^"]+)" data-caption="([^"]*)"[^>]*>\s*<img src="([^"]+)" width="(\d+)" height="(\d+)" alt="([^"]*)"[\s\S]*?<h3>([\s\S]*?)<\/h3><p>([\s\S]*?)<\/p>/g)];
-  assert.equal(works.length, P.portfolio.length);
-  P.portfolio.forEach((it, i) => {
-    const w = works[i];
-    assert.deepEqual(w[1].split(" "), it.cats.filter((c) => c !== "item"), `kategorie #${i}`);
-    assert.equal(w[2], it.full);
-    assert.equal(dec(w[3]), it.caption, `popisek #${i}`);
-    assert.equal(w[4], it.thumb);
-    assert.equal(Number(w[5]), it.w);
-    assert.equal(Number(w[6]), it.h);
-    assert.equal(dec(w[7]), it.alt);
-    assert.equal(dec(w[8]), it.title);
-    assert.equal(dec(w[9]), it.sub);
-  });
-});
+// [původní úsek, nový úsek] – nic jiného se v index.html měnit nesmí
+const ADDITIONS = [
+  [
+    `<li><a href="#contact-section" class="nav-link">Kontakt</a></li>\n              </ul>`,
+    `<li><a href="#contact-section" class="nav-link">Kontakt</a></li>\n                <li><a href="zadani/" class="nav-order">Zadat zakázku</a></li>\n              </ul>`,
+  ],
+  [
+    `                <a href="#contact-section" class="btn btn-outline-pill btn-custom-light smoothscroll">Poptat dokumentaci</a>`,
+    `                <a href="zadani/" class="btn btn-outline-pill btn-custom-light btn-accent">Zadat zakázku</a>\n                <a href="#contact-section" class="btn btn-outline-pill btn-custom-light smoothscroll">Poptat dokumentaci</a>`,
+  ],
+  [
+    `technická zpráva a&nbsp;výkaz výměr.</p>`,
+    `technická zpráva a&nbsp;výkaz výměr.</p>\n                <p class="order-link"><a href="zadani/?sluzba=lps" class="text-link">Zadat zakázku LPS &rarr;</a></p>`,
+  ],
+  [
+    `Rozsah doplním podle vašich potřeb.</p>`,
+    `Rozsah doplním podle vašich potřeb.</p>\n                <p class="order-link"><a href="zadani/?sluzba=fve" class="text-link">Zadat zakázku FVE &rarr;</a></p>`,
+  ],
+  [
+    `<a href="#analyza-section" class="text-link smoothscroll">online</a>.</p>`,
+    `<a href="#analyza-section" class="text-link smoothscroll">online</a>.</p>\n                <p class="order-link"><a href="zadani/?sluzba=dwg" class="text-link">Překreslení do DWG/DXF &rarr;</a><br><a href="zadani/?sluzba=individual" class="text-link">Jiná technická práce &rarr;</a></p>`,
+  ],
+  [
+    `<a href="https://forms.gle/ZxewcbH8ftuPXBb49" class="btn btn-outline-pill btn-custom-light" target="_blank" rel="noopener noreferrer">Zadaní podkladu FVE</a>`,
+    `<a href="zadani/?sluzba=fve" class="btn btn-outline-pill btn-custom-light">Zadaní podkladu FVE</a>`,
+  ],
+  [
+    `<a href="https://forms.gle/mDim9adUyjTMdjfS7" class="btn btn-outline-pill btn-custom-light" target="_blank" rel="noopener noreferrer">Zadaní podkladu LPS</a>`,
+    `<a href="zadani/?sluzba=lps" class="btn btn-outline-pill btn-custom-light">Zadaní podkladu LPS</a>`,
+  ],
+];
 
-test("portfolio: filtry a úvodní věta", () => {
-  for (const [f, label] of P.filters) {
-    const key = f === "*" ? "*" : f.replace(/^\./, "");
-    assert.ok(html.includes(`data-filter="${key}"`), key);
-    assert.ok(html.includes(`>${label}</button>`), label);
+test("úvodní stránka = původní web + jen odkazy na zadání zakázky", () => {
+  let expected = original;
+  for (const [from, to] of ADDITIONS) {
+    assert.equal(expected.split(from).length - 1, 1, `úsek se v originálu nenašel právě jednou: ${from.slice(0, 60)}`);
+    expected = expected.replace(from, to);
   }
-  assert.ok(html.includes(P.intro));
-});
-
-test("text o mně beze změny", () => {
-  const body = text(html);
-  assert.ok(body.includes(norm(P.about_heading)));
-  for (const p of P.about) assert.ok(body.includes(norm(p)), p.slice(0, 40));
-  assert.ok(html.includes('href="images/CV.pdf"'));
-  assert.ok(html.includes('src="images/about_me_pic_2.jpg"'));
-});
-
-test("úvod: nadpis a podtitul beze změny", () => {
-  assert.ok(text(html).includes(text(P.hero.h1)));
-  assert.ok(text(html).includes(text(P.hero.lead)));
-});
-
-test("služby: původní texty FVE, LPS a Analýzy zachované", () => {
-  const body = text(html);
-  for (const [name, p] of Object.entries(P.services)) {
-    assert.ok(body.includes(text(name)), name);
-    assert.ok(body.includes(text(p)), name);
+  if (current !== expected) {
+    const a = expected.split("\n"), b = current.split("\n");
+    const i = a.findIndex((l, k) => l !== b[k]);
+    assert.fail(`index.html se liší od původního webu na řádku ${i + 1}:\n  čekáno: ${a[i]}\n  je:     ${b[i]}`);
   }
 });
 
-test("ARONLINE a odkazy na aronline.cz", () => {
-  const body = text(html);
-  assert.ok(body.includes(P.aronline_heading));
-  for (const p of P.aronline) assert.ok(body.includes(text(p)));
-  for (const c of ["hero", "sekce-analyza", "paticka"]) assert.ok(html.includes(`utm_campaign=${c}`), c);
+test("styly: původní css/fvsol.css beze změny, jen připojený blok pro zadání", () => {
+  const css = read("css/fvsol.css");
+  const orig = read("tests/fixtures/fvsol.original.css");
+  assert.ok(css.startsWith(orig), "původní styly byly změněny");
+  const added = css.slice(orig.length);
+  assert.match(added, /^\s*\/\* Zadání zakázky \*\//);
+  assert.ok(!/(^|\n)\s*(body|html|\.unslate_co--section|\.feature-v1)\s*\{/.test(added), "přidaný blok nesmí přestylovat původní prvky");
 });
 
-test("FAQ: otázky beze změny, odpovědi beze změny kromě odkazu na nový formulář", () => {
-  const body = text(html);
-  P.faq.forEach(([q, a], i) => {
-    assert.ok(body.includes(norm(q)), q);
-    if (i === 1) {
-      const tail = text(a).split(". ").slice(1).join(". ");
-      assert.ok(body.includes(tail), "zbytek odpovědi 2 zachován");
-      assert.ok(!/Google|forms\.gle/i.test(html.split('id="faq-section"')[1].split("</section>")[0]));
-    } else assert.ok(body.includes(text(a)), q);
-  });
-});
-
-test("kontakty a funkční části: EmailJS, Calconic", () => {
-  assert.ok(html.includes("mailto:projekce@fvsol.cz"));
-  assert.ok(html.includes("tel:+420605783000"));
-  assert.ok(text(html).includes(text(P.contact.address)));
-  assert.ok(html.includes('data-calculatorid="6961003a04cb0a002c209956"'));
-  const js = readFileSync(new URL("assets/home.js", root), "utf8");
-  for (const k of ["jcI-Mfxs2Tj1RcLNA", "service_amm7txp", "template_g18lk2i"]) assert.ok(js.includes(k), k);
-  for (const id of ['id="contactForm"', 'name="name"', 'name="email"', 'name="message"', 'id="form-message-success"', 'id="form-message-warning"']) assert.ok(html.includes(id), id);
-});
-
-test("kotvy původních sekcí zůstaly (staré odkazy fungují)", () => {
-  for (const id of ["home-section", "portfolio-section", "about-section", "services-section", "analyza-section", "calculation-section", "contact-section", "faq-section"])
-    assert.ok(html.includes(`id="${id}"`), id);
-});
-
-test("strukturovaná data jsou platný JSON a obsahují nové služby", () => {
-  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
-  const svc = ld.find((n) => n["@type"] === "ProfessionalService");
-  assert.ok(svc.hasOfferCatalog.itemListElement.some((o) => /DWG/.test(o.itemOffered.name)));
-  const faq = ld.find((n) => n["@type"] === "FAQPage");
-  assert.equal(faq.mainEntity.length, 6);
+test("původní soubory webu zůstaly beze změny", async () => {
+  const { execSync } = await import("node:child_process");
+  let changed = "";
+  try {
+    changed = execSync("git diff --name-only main -- css js images *.html", { cwd: new URL(".", root).pathname, encoding: "utf8" });
+  } catch {
+    return; // mimo git (např. v nasazení) se nekontroluje
+  }
+  const files = changed.split("\n").filter(Boolean).filter((f) => !["index.html", "css/fvsol.css"].includes(f) && !f.startsWith("zadani/") && !f.startsWith("admin/"));
+  assert.deepEqual(files, [], "změněné původní soubory");
 });
