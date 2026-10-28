@@ -17,6 +17,12 @@ export function polygonArea(p: XY[]): number {
   return Math.abs(s / 2);
 }
 
+export function polygonPerimeter(p: XY[]): number {
+  let s = 0;
+  for (let i = 0, j = p.length - 1; i < p.length; j = i++) s += Math.hypot(p[i][0] - p[j][0], p[i][1] - p[j][1]);
+  return s;
+}
+
 export function convexHull(points: XY[]): XY[] {
   const pts = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
   if (pts.length < 3) return pts;

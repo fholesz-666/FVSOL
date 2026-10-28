@@ -9,7 +9,7 @@
 import { admin, sha256hex } from "./util.ts";
 import {
   exteriorSamples, interiorSamples, localFrame, median, minAreaRect, pointInPolygon,
-  pointPolygonDistance, polygonArea, type LonLat, type XY,
+  pointPolygonDistance, polygonArea, polygonPerimeter, type LonLat, type XY,
 } from "./geometry.ts";
 
 export const CUZK = {
@@ -211,6 +211,7 @@ export async function lookupSite(lon: number, lat: number, opts: { pick?: string
       suggested_type: RUIAN_USE_TO_TYPE[use] ?? null,
       floors: main.f.attributes.pocetpodlazi != null ? Number(main.f.attributes.pocetpodlazi) : null,
       area: Math.round(main.area * 10) / 10,
+      perimeter: Math.round(polygonPerimeter(main.xy) * 10) / 10,
       length: Math.round(rect.length * 100) / 100,
       width: Math.round(rect.width * 100) / 100,
       orientation_deg: Math.round(rect.orientationDeg),

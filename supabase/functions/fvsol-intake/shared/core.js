@@ -97,37 +97,61 @@ export const FILE_RULES = {
   maxOrderBytes: 150 * 1024 * 1024,
   extensions: [
     "pdf", "dwg", "dxf", "jpg", "jpeg", "png", "heic", "heif", "webp", "tif", "tiff", "bmp",
-    "doc", "docx", "xls", "xlsx", "csv", "txt", "zip",
+    "mp4", "mov", "doc", "docx", "xls", "xlsx", "csv", "txt", "zip",
   ],
 };
 
+/**
+ * Druhy podkladů. Technické údaje (výkony, jistič, EAN, typy komponent…) se nezjišťují otázkami,
+ * ale z dokumentů, které zákazník běžně má: nabídka, smlouva o připojení, vyúčtování, fotky.
+ */
 export const FILE_CATEGORIES = {
-  vykresy: { label: "Výkresy objektu", help: "Půdorysy, řezy, pohledy, výkres střechy – PDF, DWG nebo sken." },
-  foto: { label: "Fotografie", help: "Střecha, objekt ze všech stran, rozvaděč a elektroměr." },
-  nabidka: { label: "Nabídka nebo seznam komponent", help: "Panely, střídač, baterie, konstrukce." },
-  datasheet: { label: "Technické listy", help: "Datasheety panelů, střídače, baterie." },
-  pripojeni: { label: "Smlouva o připojení / vyjádření distributora", help: "" },
-  stavajici: { label: "Stávající dokumentace", help: "Projekt, který se má rozšířit nebo upravit." },
+  nabidka: { label: "Nabídka nebo seznam komponent", help: "Panely, střídač, baterie – stačí nabídka od montážní firmy." },
+  pripojeni: { label: "Smlouva o připojení", help: "Nebo podaná žádost o připojení, pokud smlouvu ještě nemáte." },
+  faktura: { label: "Vyúčtování elektřiny", help: "Stačí první strana – je na ní distributor, EAN, jistič a spotřeba." },
+  foto: { label: "Fotky domu a střechy", help: "Mobilem stačí. Střecha, dům ze všech stran, případně půda. Můžete přidat i krátké video." },
+  foto_er: { label: "Fotka elektroměrového rozvaděče", help: "Otevřená skříň s elektroměrem, aby byl vidět hlavní jistič. Případně i místo, kam má přijít střídač." },
+  vykresy: { label: "Výkresy domu (pokud máte)", help: "Půdorysy, řezy, výkres střechy – PDF, DWG nebo sken." },
+  stavajici: { label: "Stávající dokumentace", help: "Projekt, který se má rozšířit nebo upravit, případně revizní zpráva." },
   revize: { label: "Revizní zpráva hromosvodu", help: "" },
-  fve_projekt: { label: "Projekt FVE", help: "Rozmístění panelů a tras na střeše." },
-  pbr: { label: "Požárně bezpečnostní řešení", help: "Pokud je k dispozici." },
-  zdroj: { label: "Podklady k překreslení", help: "PDF, sken, fotografie nebo DWG/DXF." },
-  sablona: { label: "Šablona hladin nebo razítko", help: "Pokud chcete výkresy ve vlastním standardu." },
+  fve_projekt: { label: "Projekt fotovoltaiky", help: "Rozmístění panelů na střeše – pokud ho máte." },
+  pbr: { label: "Požárně bezpečnostní řešení", help: "Pokud ho máte." },
+  datasheet: { label: "Technické listy", help: "" },
+  zdroj: { label: "Výkresy k překreslení", help: "PDF, sken nebo fotka výkresu, případně DWG/DXF k úpravě." },
+  sablona: { label: "Vaše šablona hladin nebo razítko", help: "Pokud chcete výkresy ve vlastním standardu." },
   vzor: { label: "Firemní vzor dokumentace", help: "Razítko, titulní list, vzorová technická zpráva." },
-  jine: { label: "Jiné", help: "" },
+  jine: { label: "Ostatní", help: "Cokoli dalšího – statika, PBŘ, poznámky, náčrt." },
 };
 
 const FILE_CATS_BY_SERVICE = {
-  fve: ["vykresy", "foto", "nabidka", "datasheet", "pripojeni", "stavajici", "jine"],
-  lps: ["vykresy", "foto", "stavajici", "revize", "fve_projekt", "pbr", "jine"],
+  fve: ["nabidka", "pripojeni", "faktura", "foto", "foto_er", "vykresy", "stavajici", "jine"],
+  lps: ["foto", "vykresy", "stavajici", "fve_projekt", "pbr", "jine"],
   dwg: ["zdroj", "sablona", "jine"],
   individual: ["jine", "vykresy", "foto"],
 };
 
+const isFirm = (a) => ["montaz", "projekce"].includes(a.role);
+
+/** Které druhy podkladů nabídnout zákazníkovi – jen ty, které podle odpovědí dávají smysl. */
 export function fileCategoriesFor(service, answers = {}) {
-  const cats = [...(FILE_CATS_BY_SERVICE[service] || ["jine"])];
-  if (["montaz", "projekce"].includes(answers.role) && answers.vzor === "vlastni") cats.splice(cats.length - 1, 0, "vzor");
+  const a = answers || {};
+  const show = {
+    nabidka: a.komponenty_stav !== "navrh",
+    pripojeni: a.zadost === "sop" || a.zadost === "podana",
+    faktura: a.zadost !== "sop",
+    stavajici: service !== "fve" || ["rozsireni", "uprava", "dsps"].includes(a.fve_rozsah) || has(a, "lps_rozsah", "rekonstrukce"),
+    fve_projekt: has(a, "lps_rozsah", "fve") || ["stavajici", "planovana"].includes(a.fve_na_strese),
+    pbr: has(a, "lps_rozsah", "analyza") && ["bd", "firma", "verejna"].includes(a.objekt_typ),
+  };
+  if (service === "lps") show.stavajici = has(a, "lps_rozsah", "rekonstrukce") || a.stavajici_lps === "ano" || has(a, "lps_rozsah", "dsps");
+  const cats = (FILE_CATS_BY_SERVICE[service] || ["jine"]).filter((c) => show[c] !== false);
+  if (isFirm(a) && a.vzor === "vlastni") cats.splice(cats.length - 1, 0, "vzor");
   return cats;
+}
+
+/** Druhy, které server přijme pro danou službu (nezávisle na aktuálních odpovědích). */
+export function allowedFileCategories(service) {
+  return [...new Set([...(FILE_CATS_BY_SERVICE[service] || ["jine"]), "vzor", "jine"])];
 }
 
 export function extOf(name = "") {
@@ -163,11 +187,22 @@ export const OBJECT_TYPES = [
   o("jine", "Jiný objekt"),
 ];
 
+export const POWER_RANGES = [
+  o("do10", "do 10 kWp", "Běžný rodinný dům"),
+  o("10-20", "10–20 kWp"),
+  o("20-50", "20–50 kWp"),
+  o("50-100", "50–100 kWp"),
+  o("nad100", "nad 100 kWp"),
+];
+
 /**
- * Kroky formuláře podle služby. Každá otázka:
- *  id, label, type (single|multi|text|textarea|number|date|site|files|check),
+ * Kroky formuláře podle služby. Zásada: jen základní otázky, které zvládne každý,
+ * skoro všechny na kliknutí. Technické parametry se berou z nahraných dokumentů
+ * a z katastru; co v nich chybí, dořeší projektant (viz evaluate).
+ *
+ * Otázka: id, label, type (single|multi|text|textarea|date|site|check|email|tel),
  *  options, unknown (nabídnout „Nevím“), when(answers), need: "submit" | "process" | "later" | null,
- *  help, unit, placeholder, ask (jak o údaj požádat později), designer (co posoudí projektant při „Nevím“).
+ *  help, ask (jak o údaj požádat později), designer (co posoudí projektant při „Nevím“).
  */
 export const STEPS = {
   fve: [
@@ -178,11 +213,11 @@ export const STEPS = {
         {
           id: "fve_rozsah", type: "single", need: "submit", label: "O jakou dokumentaci jde?",
           options: [
-            o("nova", "Nová FVE", "Kompletní dokumentace nové elektrárny"),
+            o("nova", "Nová fotovoltaika"),
             o("rozsireni", "Rozšíření stávající FVE"),
-            o("uprava", "Úprava existující dokumentace"),
+            o("uprava", "Úprava hotové dokumentace"),
             o("dsps", "Dokumentace skutečného provedení"),
-            o("cast", "Jen vybrané části"),
+            o("cast", "Jen některé části"),
           ],
         },
         {
@@ -190,111 +225,71 @@ export const STEPS = {
           when: (a) => a.fve_rozsah === "cast",
           options: [
             o("tz", "Technická zpráva"),
-            o("vykresy", "Situace a půdorys s rozmístěním panelů"),
+            o("vykresy", "Rozmístění panelů na střeše"),
             o("jps", "Jednopólové schéma"),
-            o("rozvadece", "AC/DC rozvaděče, jištění a ochrany"),
-            o("stringy", "Kontrola stringů, kabeláže a kompatibility"),
-            o("distributor", "Podklady pro připojení k distribuční soustavě"),
+            o("rozvadece", "Rozvaděče, jištění a ochrany"),
+            o("stringy", "Kontrola stringů a kabelů"),
+            o("distributor", "Podklady pro distributora"),
           ],
         },
         {
-          id: "fve_ucel", type: "multi", unknown: true, need: null, label: "K čemu dokumentaci potřebujete?",
-          help: "Podle účelu zvolím stupeň dokumentace. Můžete vybrat více možností.",
-          options: [
-            o("distributor", "Žádost o připojení k síti"),
-            o("su", "Stavební úřad"),
-            o("dps", "Provedení stavby (DPS)"),
-            o("dotace", "Dotace"),
-            o("investor", "Pro investora nebo výběrové řízení"),
-          ],
-          designer: "Určit stupeň dokumentace podle účelu",
+          id: "fve_vykon", type: "single", unknown: true, need: null, label: "Jak velká bude elektrárna?",
+          help: "Stačí přibližně.",
+          options: POWER_RANGES,
         },
       ],
     },
     {
       id: "objekt",
-      title: "Objekt",
+      title: "Budova",
       questions: [
-        { id: "site", type: "site", need: "submit", label: "Kde je stavba?", help: "Adresa nebo číslo parcely. Objekt pak označíte v mapě." },
-        { id: "objekt_typ", type: "single", need: "process", label: "Typ objektu", options: OBJECT_TYPES, ask: "Typ objektu" },
+        { id: "site", type: "site", need: "submit", label: "Kde je budova?", help: "Napište adresu nebo číslo parcely a budovu pak potvrďte v mapě." },
+        { id: "objekt_typ", type: "single", need: "process", label: "Co je to za budovu?", options: OBJECT_TYPES, ask: "Typ budovy" },
         {
-          id: "montaz", type: "single", unknown: true, need: "process", label: "Kam se budou panely montovat?",
-          options: [o("sikma", "Šikmá střecha"), o("plocha", "Plochá střecha"), o("fasada", "Fasáda"), o("zem", "Na zemi nebo na přístřešku")],
-          designer: "Určit typ montáže z výkresů nebo fotografií",
+          id: "montaz", type: "single", unknown: true, need: null, label: "Kam přijdou panely?",
+          options: [o("sikma", "Šikmá střecha"), o("plocha", "Plochá střecha"), o("fasada", "Fasáda"), o("zem", "Na zem nebo přístřešek")],
+          designer: "Určit typ montáže z fotek",
         },
         {
-          id: "krytina", type: "single", unknown: true, need: null, label: "Krytina",
-          when: (a) => a.montaz === "sikma",
-          options: [o("taska", "Taška"), o("plech", "Plech, falc"), o("sindel", "Šindel"), o("vlaknocement", "Vláknocement, eternit"), o("jina", "Jiná")],
-          designer: "Určit krytinu z fotografií",
-        },
-        {
-          id: "krytina_plocha", type: "single", unknown: true, need: null, label: "Povrch ploché střechy",
-          when: (a) => a.montaz === "plocha",
-          options: [o("folie", "Fólie"), o("asfalt", "Asfaltové pásy"), o("trapez", "Trapézový plech"), o("jina", "Jiný")],
-          designer: "Určit skladbu střechy",
-        },
-        {
-          id: "hromosvod", type: "single", unknown: true, need: null, label: "Je na objektu hromosvod?",
+          id: "hromosvod", type: "single", unknown: true, need: null, label: "Je na budově hromosvod?",
           options: [o("ano", "Ano"), o("ne", "Ne")],
-          designer: "Ověřit hromosvod z fotografií",
-        },
-        {
-          id: "hromosvod_resit", type: "single", need: null, label: "Mám řešit i hromosvod?",
-          help: "Panely musí ležet v ochranném prostoru a dodržet dostatečné vzdálenosti.",
-          when: (a) => a.hromosvod === "ano" || a.hromosvod === UNKNOWN,
-          options: [o("ano", "Ano, navrhněte i úpravu hromosvodu"), o("ne", "Ne, jen FVE"), o("poradte", "Poraďte mi")],
+          designer: "Ověřit hromosvod z fotek",
         },
       ],
     },
     {
       id: "technologie",
-      title: "Technologie",
+      title: "Technologie a připojení",
       questions: [
         {
-          id: "komponenty_stav", type: "single", need: "submit", label: "Máte už vybrané komponenty?",
+          id: "komponenty_stav", type: "single", need: "submit", label: "Máte už nabídku na panely a střídač?",
+          options: [o("mam", "Ano, přiložím ji"), o("navrh", "Ne, navrhněte je")],
+        },
+        {
+          id: "baterie", type: "single", unknown: true, need: null, label: "Chcete baterii?",
+          when: (a) => a.komponenty_stav === "navrh",
+          options: [o("ano", "Ano"), o("ne", "Ne")],
+        },
+        {
+          id: "zadost", type: "single", unknown: true, need: null, label: "Smlouva o připojení k síti",
+          help: "Tu vydává distributor elektřiny (ČEZ, EG.D, PRE).",
+          options: [o("sop", "Mám ji, přiložím"), o("podana", "Žádost je podaná"), o("ne", "Zatím nic")],
+        },
+        {
+          id: "pretoky", type: "single", unknown: true, need: null, label: "Budete posílat přebytky do sítě?",
+          when: (a) => a.zadost !== "sop",
+          options: [o("ano", "Ano"), o("ne", "Ne, vše spotřebuji")],
+        },
+        {
+          id: "doplnky", type: "multi", need: null, label: "Mám zajistit i něco z tohoto? (nepovinné)",
           options: [
-            o("mam", "Ano, mám nabídku nebo seznam"),
-            o("castecne", "Jen některé"),
-            o("navrh", "Ne, potřebuji návrh"),
+            o("lps", "Hromosvod"),
+            o("analyza", "Analýza rizika"),
+            o("statika", "Statický posudek"),
+            o("pbr", "Požární řešení (PBŘ)"),
+            o("wallbox", "Nabíječka auta"),
           ],
         },
-        { id: "vykon_kwp", type: "number", unknown: true, need: null, unit: "kWp", label: "Přibližný výkon", placeholder: "např. 9,9" },
-        { id: "panely_typ", type: "text", unknown: true, need: null, label: "Panely – výrobce a typ", when: (a) => a.komponenty_stav !== "navrh", placeholder: "např. AIKO A500-MAH60Mb" },
-        { id: "panely_pocet", type: "number", unknown: true, need: null, unit: "ks", label: "Počet panelů", when: (a) => a.komponenty_stav !== "navrh" },
-        { id: "stridac", type: "text", unknown: true, need: null, label: "Střídač – výrobce a typ", when: (a) => a.komponenty_stav !== "navrh", placeholder: "např. SolaX X3-Hybrid-10.0" },
-        {
-          id: "baterie", type: "single", unknown: true, need: null, label: "Baterie",
-          options: [o("ne", "Bez baterie"), o("ano", "S baterií")],
-        },
-        { id: "baterie_kwh", type: "number", unknown: true, need: null, unit: "kWh", label: "Kapacita baterie", when: (a) => a.baterie === "ano" },
-        {
-          id: "dalsi", type: "multi", need: null, label: "Další části (nepovinné)",
-          options: [o("wallbox", "Nabíječka elektromobilu"), o("optimizery", "Optimizéry nebo odpojovače"), o("ohrev", "Ohřev vody přebytky"), o("zaloha", "Záložní provoz při výpadku sítě")],
-        },
-      ],
-    },
-    {
-      id: "pripojeni",
-      title: "Připojení",
-      questions: [
-        {
-          id: "distributor", type: "single", unknown: true, need: null, label: "Distributor elektřiny",
-          help: "Najdete ho na faktuře za elektřinu.",
-          options: [o("cez", "ČEZ Distribuce"), o("egd", "EG.D"), o("pre", "PREdistribuce"), o("lds", "Lokální distribuční soustava")],
-          ask: "Distributor elektřiny (z faktury za elektřinu)",
-        },
-        { id: "jistic_a", type: "number", unknown: true, need: null, unit: "A", label: "Hlavní jistič před elektroměrem", placeholder: "např. 25", ask: "Hodnota hlavního jističe (stačí fotografie elektroměrového rozvaděče)" },
-        {
-          id: "pretoky", type: "single", unknown: true, need: null, label: "Přetoky do sítě",
-          options: [o("ano", "Ano, prodávat přebytky"), o("ne", "Ne, bez přetoků")],
-          ask: "Zda má výrobna dodávat přebytky do sítě",
-        },
-        {
-          id: "zadost", type: "single", unknown: true, need: null, label: "Žádost o připojení",
-          options: [o("ne", "Zatím nepodaná"), o("podana", "Podaná, čekám na vyjádření"), o("sop", "Mám smlouvu o připojení")],
-        },
-        { id: "umisteni_technologie", type: "text", need: null, label: "Kde bude střídač a rozvaděče? (nepovinné)", placeholder: "např. garáž, technická místnost v 1. NP" },
       ],
     },
   ],
@@ -309,10 +304,9 @@ export const STEPS = {
           help: "Můžete vybrat více možností.",
           options: [
             o("novy", "Nový hromosvod"),
-            o("rekonstrukce", "Rekonstrukce nebo úprava stávajícího"),
-            o("fve", "Úprava kvůli FVE", "Kolize, ochranný prostor, dostatečné vzdálenosti"),
-            o("analyza", "Analýza rizika", "Podle ČSN EN 62305-2"),
-            o("vzdalenosti", "Kontrola dostatečných vzdáleností"),
+            o("rekonstrukce", "Úprava stávajícího hromosvodu"),
+            o("fve", "Hromosvod kvůli fotovoltaice"),
+            o("analyza", "Analýza rizika"),
             o("dsps", "Dokumentace skutečného provedení"),
           ],
         },
@@ -320,66 +314,53 @@ export const STEPS = {
     },
     {
       id: "objekt",
-      title: "Objekt",
+      title: "Budova",
       questions: [
-        { id: "site", type: "site", need: "submit", label: "Kde je stavba?", help: "Adresa nebo číslo parcely. Objekt pak označíte v mapě." },
-        { id: "objekt_typ", type: "single", need: "process", label: "Typ objektu", options: OBJECT_TYPES, ask: "Typ objektu" },
-        { id: "delka_m", type: "number", unknown: true, need: null, unit: "m", label: "Délka objektu" },
-        { id: "sirka_m", type: "number", unknown: true, need: null, unit: "m", label: "Šířka objektu" },
-        { id: "vyska_m", type: "number", unknown: true, need: null, unit: "m", label: "Výška objektu (nejvyšší bod střechy)" },
+        { id: "site", type: "site", need: "submit", label: "Kde je budova?", help: "Napište adresu nebo číslo parcely a budovu pak potvrďte v mapě." },
+        { id: "objekt_typ", type: "single", need: "process", label: "Co je to za budovu?", options: OBJECT_TYPES, ask: "Typ budovy" },
         {
-          id: "strecha_tvar", type: "single", unknown: true, need: null, label: "Tvar střechy",
-          options: [o("plocha", "Plochá"), o("sedlova", "Sedlová"), o("valbova", "Valbová"), o("pultova", "Pultová"), o("kombinovana", "Členitá, kombinovaná")],
-          designer: "Určit tvar střechy z výkresů",
+          id: "podlazi", type: "single", unknown: true, need: null, label: "Kolik má pater nad zemí?",
+          options: [o("1", "1"), o("2", "2"), o("3", "3"), o("4", "4"), o("5", "5 a víc")],
+          designer: "Zjistit počet podlaží",
         },
         {
-          id: "krytina_lps", type: "single", unknown: true, need: null, label: "Krytina",
-          options: [o("plech", "Plech"), o("taska", "Taška"), o("folie", "Fólie"), o("asfalt", "Asfaltové pásy"), o("horlava", "Hořlavá", "Šindel, dřevo, došky"), o("jina", "Jiná")],
-          designer: "Určit krytinu z fotografií",
-        },
-        {
-          id: "zatepleni", type: "single", unknown: true, need: null, label: "Má objekt zateplenou fasádu?",
-          options: [o("ano", "Ano"), o("ne", "Ne")],
+          id: "osoby", type: "single", unknown: true, need: null, label: "Kolik lidí v budově obvykle bývá?",
+          options: [o("5", "do 5"), o("10", "6–10"), o("30", "11–30"), o("100", "31–100"), o("vice", "víc než 100")],
+          ask: "Kolik lidí v budově obvykle bývá",
         },
       ],
     },
     {
-      id: "technologie",
-      title: "Střecha a ochrana",
+      id: "strecha",
+      title: "Střecha a fasáda",
       questions: [
         {
-          id: "fve_na_strese", type: "single", need: "process", label: "Je nebo bude na střeše fotovoltaika?",
-          options: [o("ne", "Ne"), o("stavajici", "Ano, už tam je"), o("planovana", "Ano, plánuje se")],
-          ask: "Zda je nebo bude na střeše FVE",
+          id: "strecha_tvar", type: "single", unknown: true, need: null, label: "Jakou má střechu?",
+          options: [o("plocha", "Plochá"), o("sedlova", "Sedlová"), o("valbova", "Valbová"), o("pultova", "Pultová"), o("kombinovana", "Členitá")],
+          designer: "Určit tvar střechy z fotek",
         },
         {
-          id: "strecha_zarizeni", type: "multi", need: null, label: "Co dalšího je na střeše? (nepovinné)",
-          options: [o("klimatizace", "Klimatizace, tepelná čerpadla"), o("vzt", "Vzduchotechnika"), o("anteny", "Antény, stožáry"), o("komin", "Komíny"), o("svetliky", "Světlíky")],
+          id: "krytina_lps", type: "single", unknown: true, need: null, label: "Čím je střecha pokrytá?",
+          options: [o("plech", "Plech"), o("taska", "Taška"), o("folie", "Fólie"), o("asfalt", "Asfaltové pásy"), o("horlava", "Šindel, dřevo, došky")],
+          designer: "Určit krytinu z fotek",
         },
         {
-          id: "stavajici_lps", type: "single", unknown: true, need: null, label: "Je na objektu hromosvod?",
+          id: "fasada", type: "single", unknown: true, need: null, label: "Jakou má fasádu?",
+          options: [o("zateplena", "Zateplená"), o("nezateplena", "Nezateplená"), o("drevo", "Dřevěná"), o("plech", "Plechová")],
+          designer: "Určit fasádu z fotek",
+        },
+        {
+          id: "stavajici_lps", type: "single", unknown: true, need: null, label: "Je tam už hromosvod?",
           options: [o("ano", "Ano"), o("ne", "Ne")],
-          designer: "Ověřit stávající hromosvod z fotografií",
+          designer: "Ověřit stávající hromosvod z fotek",
         },
         {
-          id: "trida_lps", type: "single", need: null, label: "Požadovaná třída ochrany",
-          help: "Pokud ji neznáte, určí ji analýza rizika.",
-          options: [o(UNKNOWN, "Nevím – určí analýza rizika"), o("I", "LPS I"), o("II", "LPS II"), o("III", "LPS III"), o("IV", "LPS IV")],
+          id: "fve_na_strese", type: "single", need: null, label: "Je nebo bude na střeše fotovoltaika?",
+          options: [o("ne", "Ne"), o("stavajici", "Už tam je"), o("planovana", "Plánuje se")],
         },
         {
-          id: "provedeni", type: "single", need: null, label: "Provedení",
-          options: [o("klasicke", "Klasické vodiče", "AlMgSi, FeZn"), o("hvi", "Izolovaný hromosvod (HVI)"), o("projektant", "Nechám na projektantovi")],
-        },
-        {
-          id: "pripojka_el", type: "single", unknown: true, need: "later", label: "Přípojka elektřiny",
-          when: (a) => has(a, "lps_rozsah", "analyza") || !a.trida_lps || a.trida_lps === UNKNOWN,
-          options: [o("zemni", "Zemní kabel"), o("vzdusna", "Vzdušné vedení")],
-          ask: "Typ přípojky elektřiny (zemní kabel / vzdušné vedení)",
-        },
-        {
-          id: "dalsi_vedeni", type: "multi", unknown: true, need: null, label: "Další přípojky do objektu",
-          when: (a) => has(a, "lps_rozsah", "analyza") || !a.trida_lps || a.trida_lps === UNKNOWN,
-          options: [o("telekom", "Telekomunikace, data"), o("zadne", "Žádné další")],
+          id: "provedeni", type: "single", need: null, label: "Jaký hromosvod by se vám líbil? (nepovinné)",
+          options: [o("klasicke", "Klasický drát"), o("hvi", "Izolovaný, méně vidět"), o("projektant", "Nechám na vás")],
         },
       ],
     },
@@ -393,37 +374,40 @@ export const STEPS = {
         {
           id: "dwg_ukol", type: "multi", need: "submit", label: "Co mám udělat?",
           options: [
-            o("sken", "Překreslit papírový výkres nebo sken"),
+            o("sken", "Překreslit papírový výkres, sken nebo fotku"),
             o("pdf", "Převést PDF do DWG/DXF"),
-            o("uprava", "Upravit existující DWG/DXF"),
-            o("doplneni", "Doplnit nebo změnit dokumentaci"),
-            o("sada", "Překreslit větší sadu výkresů"),
+            o("uprava", "Upravit nebo doplnit DWG/DXF"),
           ],
         },
         {
-          id: "dwg_druh", type: "multi", unknown: true, need: "submit", label: "Jaké výkresy?",
-          options: [o("pudorysy", "Půdorysy"), o("rezy", "Řezy a pohledy"), o("situace", "Situační výkresy"), o("schemata", "Elektro schémata"), o("jine", "Jiné technické výkresy")],
+          id: "dwg_druh", type: "multi", need: null, label: "Jaké výkresy? (nepovinné)",
+          options: [o("pudorysy", "Půdorysy"), o("rezy", "Řezy a pohledy"), o("situace", "Situace"), o("schemata", "Elektro schémata"), o("jine", "Jiné")],
         },
-        { id: "dwg_pocet", type: "number", unknown: true, need: null, unit: "listů", label: "Kolik výkresů?", designer: "Spočítat listy v podkladech" },
+        {
+          id: "dwg_pocet", type: "single", unknown: true, need: null, label: "Kolik výkresů?",
+          options: [o("1", "1"), o("5", "2–5"), o("20", "6–20"), o("vice", "víc než 20")],
+          designer: "Spočítat listy v podkladech",
+        },
       ],
     },
     {
       id: "vystup",
       title: "Výstup",
       questions: [
-        { id: "dwg_format", type: "single", need: null, label: "Formát", options: [o("dwg", "DWG"), o("dxf", "DXF"), o("oba", "DWG i DXF")] },
+        { id: "dwg_format", type: "single", need: null, label: "V jakém formátu?", options: [o("dwg", "DWG"), o("dxf", "DXF"), o("oba", "Oba"), o("jedno", "Je mi to jedno")] },
         {
           id: "dwg_verze", type: "single", unknown: true, need: null, label: "Verze AutoCADu",
+          when: (a) => a.dwg_format === "dwg" || a.dwg_format === "oba",
           options: [o("2018", "2018 a novější"), o("2013", "2013"), o("2010", "2010"), o("2007", "2007")],
         },
         {
-          id: "zachovat", type: "multi", need: null, label: "Co má výkres zachovat?",
-          options: [o("vrstvy", "Vrstvy podle předlohy nebo vaší šablony"), o("texty", "Texty a popisy"), o("koty", "Kóty"), o("meritko", "Měřítko 1:1"), o("razitko", "Razítko a rámeček")],
+          id: "zachovat", type: "multi", need: null, label: "Co má výkres zachovat? (nepovinné)",
+          options: [o("vrstvy", "Vrstvy"), o("texty", "Texty"), o("koty", "Kóty"), o("meritko", "Měřítko 1:1"), o("razitko", "Razítko")],
         },
         {
-          id: "zname_meritko", type: "single", unknown: true, need: null, label: "Je na podkladu kóta nebo známý rozměr?",
-          help: "U skenů a fotografií podle něj ověřím měřítko.",
-          when: (a) => has(a, "dwg_ukol", "sken") || has(a, "dwg_ukol", "pdf") || has(a, "dwg_ukol", "sada"),
+          id: "zname_meritko", type: "single", unknown: true, need: null, label: "Je na výkresu kóta nebo známý rozměr?",
+          help: "Podle něj ověřím měřítko.",
+          when: (a) => has(a, "dwg_ukol", "sken") || has(a, "dwg_ukol", "pdf"),
           options: [o("ano", "Ano"), o("ne", "Ne")],
         },
         { id: "termin", type: "single", need: null, label: "Termín", options: [o("bezny", "Běžný"), o("spech", "Spěchá")] },
@@ -438,10 +422,10 @@ export const STEPS = {
       title: "Popis práce",
       questions: [
         {
-          id: "ind_obor", type: "multi", need: null, label: "Obor",
-          options: [o("fve", "Fotovoltaika"), o("lps", "Hromosvody"), o("elektro", "Elektro – jiné"), o("cad", "Výkresy, CAD"), o("jine", "Jiné")],
+          id: "ind_obor", type: "multi", need: null, label: "Čeho se to týká?",
+          options: [o("fve", "Fotovoltaika"), o("lps", "Hromosvod"), o("elektro", "Elektro"), o("cad", "Výkresy, CAD"), o("jine", "Jiné")],
         },
-        { id: "ind_popis", type: "textarea", need: "submit", label: "Co potřebujete zpracovat?", placeholder: "Popište stručně zadání, rozsah a k čemu výstup potřebujete." },
+        { id: "ind_popis", type: "textarea", need: "submit", label: "Co potřebujete?", placeholder: "Pár vět stačí." },
         { id: "ind_termin", type: "date", need: null, label: "Termín (nepovinné)" },
       ],
     },
@@ -458,16 +442,15 @@ export const CONTACT_STEP = {
     { id: "kontakt_email", type: "email", need: "submit", label: "E-mail", autocomplete: "email" },
     { id: "kontakt_telefon", type: "tel", need: "later", label: "Telefon", autocomplete: "tel", ask: "Telefon pro rychlé dotazy" },
     {
-      id: "role", type: "single", need: null, label: "Zadáváte jako",
-      options: [o("investor", "Majitel nebo investor"), o("montaz", "Montážní firma"), o("projekce", "Projekční kancelář"), o("jine", "Jiné")],
+      id: "role", type: "single", need: null, label: "Jste",
+      options: [o("investor", "Majitel"), o("montaz", "Montážní firma"), o("projekce", "Projektant"), o("jine", "Jiné")],
     },
     { id: "firma", type: "text", need: null, label: "Firma", when: (a) => isRole(a, "montaz", "projekce", "jine"), autocomplete: "organization" },
-    { id: "ico", type: "text", need: null, label: "IČO", when: (a) => isRole(a, "montaz", "projekce", "jine"), placeholder: "8 číslic" },
-    { id: "investor_nazev", type: "text", need: "later", label: "Investor stavby (do razítka)", when: (a) => isRole(a, "montaz", "projekce"), ask: "Název a adresa investora do razítka" },
+    { id: "ico", type: "text", need: null, label: "IČO (nepovinné)", when: (a) => isRole(a, "montaz", "projekce", "jine"), placeholder: "8 číslic" },
     {
-      id: "vzor", type: "single", need: null, label: "Vzor dokumentace",
+      id: "vzor", type: "single", need: null, label: "Podle jakého vzoru?",
       when: (a) => isRole(a, "montaz", "projekce"),
-      options: [o("vlastni", "Mám vlastní vzor, přiložím ho"), o("drive", "Vzor už máte z dřívější spolupráce"), o("univerzalni", "Použijte váš vzor")],
+      options: [o("univerzalni", "Vaše standardní"), o("drive", "Jako minule"), o("vlastni", "Náš firemní – přiložím")],
     },
     { id: "poznamka", type: "textarea", need: null, label: "Poznámka (nepovinné)" },
     { id: "souhlas", type: "check", need: "submit", label: "Souhlasím se zpracováním uvedených údajů pro vyřízení poptávky." },
@@ -651,53 +634,81 @@ export function evaluate(order) {
     }
   }
 
-  // pravidla podle služby
+  // obvod budovy z katastru (pro nacenění LPS) – jen odhad
+  if ((service === "fve" || service === "lps") && site?.building?.perimeter)
+    auto.push({ key: "perimeter", label: "Obvod budovy (z obrysu)", value: `${fmt1(site.building.perimeter)} m`, source: "obrys budovy v katastrální mapě", quality: "odhad" });
+
+  // pravidla podle služby – technické údaje se berou z dokumentů, na co se dá, se neptáme
   if (service === "fve") {
-    if (!filesIn(files, "vykresy", "foto")) miss("podklady_objekt", "Výkresy objektu nebo alespoň fotografie střechy", "process");
-    if (a.montaz === "plocha") des("statika", "Ověřit únosnost ploché střechy (zátěžová konstrukce) – případně vyžádat statický posudek");
-    if (a.montaz && a.montaz !== "zem" && a.montaz !== "plocha") des("statika", "Ověřit, zda investor potřebuje statické posouzení střechy");
-    if (a.komponenty_stav === "mam") {
-      const listed = !isBlank(a.panely_typ) && !isUnknown(a.panely_typ) && !isBlank(a.panely_pocet) && !isUnknown(a.panely_pocet) && !isBlank(a.stridac) && !isUnknown(a.stridac);
-      if (!filesIn(files, "nabidka") && !listed) miss("komponenty", "Nabídka nebo seznam komponent (panely, počet, střídač)", "process");
+    const r = a.fve_rozsah;
+    const parts = Array.isArray(a.fve_casti) ? a.fve_casti : [];
+    const newWork = r === "nova" || r === "rozsireni";
+    const needsRoof = newWork || parts.includes("vykresy") || parts.includes("stringy");
+    const needsElectro = newWork || ["jps", "rozvadece", "distributor"].some((x) => parts.includes(x));
+    const needsGrid = newWork || parts.includes("distributor") || parts.includes("jps");
+
+    if (needsRoof && !filesIn(files, "vykresy", "foto")) miss("foto", "Fotky střechy a domu (nebo výkresy)", "process");
+    if (needsElectro && !filesIn(files, "foto_er")) miss("foto_er", "Fotka elektroměrového rozvaděče s hlavním jističem", "process");
+    if (["rozsireni", "uprava", "dsps"].includes(r) && !filesIn(files, "stavajici"))
+      miss("stavajici", r === "dsps" ? "Projekt, podle kterého se stavělo, a změny při montáži" : "Stávající dokumentace FVE", "process");
+
+    if (a.komponenty_stav === "mam" && !filesIn(files, "nabidka")) miss("komponenty", "Nabídka nebo seznam komponent (panely, střídač, baterie)", "process");
+    if (a.komponenty_stav === "navrh") {
+      des("komponenty", "Navrhnout panely, střídač a počet panelů (určuje projektant)");
+      if (!filesIn(files, "faktura")) miss("spotreba", "Roční spotřeba elektřiny (stačí vyúčtování)", "later");
     }
-    if (a.komponenty_stav === "navrh") des("komponenty", "Navrhnout komponenty a počet panelů (určuje projektant, nepočítá se automaticky)");
-    if (a.komponenty_stav === "castecne") des("komponenty", "Doplnit chybějící komponenty");
-    if (isUnknown(a.panely_pocet) && a.komponenty_stav !== "navrh") des("panely_pocet", "Určit počet panelů podle rozmístění");
-    if (a.komponenty_stav !== "navrh" && !filesIn(files, "datasheet") && (filesIn(files, "nabidka") || !isBlank(a.panely_typ)))
-      miss("datasheet", "Technické listy panelů a střídače", "later");
-    if (["rozsireni", "uprava", "dsps"].includes(a.fve_rozsah) && !filesIn(files, "stavajici"))
-      miss("stavajici", a.fve_rozsah === "dsps" ? "Projekt, podle kterého se stavělo, a změny při montáži" : "Stávající dokumentace FVE", "process");
-    if (a.zadost === "sop" && !filesIn(files, "pripojeni")) miss("sop", "Smlouva o připojení", "later");
-    if (has(a, "fve_ucel", "distributor") || a.fve_rozsah === "nova") miss("ean", "EAN odběrného místa (z faktury za elektřinu)", "later");
-    if (a.hromosvod === "ano" && a.hromosvod_resit === "ne") des("lps_kolize", "Ověřit polohu panelů v ochranném prostoru a dostatečné vzdálenosti s");
-    if (a.hromosvod_resit === "ano") manual.push("Zákazník chce řešit i hromosvod – připojit LPS do nabídky");
-    if (has(a, "dalsi", "zaloha")) des("zaloha", "Záložní provoz – ověřit zapojení přepínání a soulad s pravidly distributora");
+    if (!a.fve_vykon || isUnknown(a.fve_vykon)) des("vykon", "Výkon FVE neznám – určit z nabídky nebo návrhu");
+
+    if (needsGrid) {
+      if (a.zadost === "sop" && !filesIn(files, "pripojeni")) miss("sop", "Smlouva o připojení", "process");
+      else if (a.zadost === "podana" && !filesIn(files, "pripojeni")) miss("sop", "Smlouva o připojení, až ji dostanete (nebo podaná žádost)", "later");
+      else if (a.zadost !== "sop" && !filesIn(files, "pripojeni", "faktura")) miss("faktura", "Vyúčtování elektřiny (distributor, EAN, hlavní jistič)", "later");
+      if (a.zadost === "ne" || isUnknown(a.zadost) || !a.zadost) des("zadost", "Připravit podklady k žádosti o připojení (případně ji podat za klienta)");
+      if (a.zadost !== "sop" && (!a.pretoky || isUnknown(a.pretoky))) des("pretoky", "Přetoky do sítě – domluvit s klientem");
+      if (filesIn(files, "pripojeni")) des("sop_tpp", "Projít smlouvu o připojení: Pinst/Prez, místo připojení a požadavky TPP vs. střídač");
+    }
+
+    if (a.montaz === "plocha") des("statika", "Ověřit únosnost ploché střechy (zátěžová konstrukce) – případně statický posudek");
+    else if (a.montaz && a.montaz !== "zem" && !isUnknown(a.montaz) && ["firma", "verejna", "bd", "zemedelska"].includes(a.objekt_typ))
+      des("statika", "Ověřit, zda investor potřebuje statické posouzení střechy");
+    if (a.hromosvod === "ano" && !has(a, "doplnky", "lps")) des("lps_kolize", "Ověřit polohu panelů v ochranném prostoru a dostatečné vzdálenosti s");
+    if (["firma", "verejna", "bd"].includes(a.objekt_typ) && !has(a, "doplnky", "pbr")) des("pbr", "Komerční / veřejná budova – ověřit požadavky PBŘ (STOP tlačítko, trasy kabelů)");
+
+    const extra = { lps: "Zahrnout do nabídky návrh hromosvodu", analyza: "Zahrnout do nabídky analýzu rizika", statika: "Zajistit statický posudek (subdodávka)", pbr: "Zajistit PBŘ (subdodávka)", wallbox: "Zahrnout nabíječku elektromobilu" };
+    for (const [k, label] of Object.entries(extra)) if (has(a, "doplnky", k)) manual.push(label);
     if (a.objekt_typ === "jine") manual.push("Neobvyklý typ objektu");
   }
 
   if (service === "lps") {
-    if (!filesIn(files, "vykresy", "foto")) miss("podklady_objekt", "Výkresy objektu nebo fotografie objektu ze všech stran a střechy", "process");
-    const dimsKnown = ["delka_m", "sirka_m", "vyska_m"].every((k) => parseNumber(a[k]) != null);
-    if (!dimsKnown && !filesIn(files, "vykresy")) miss("rozmery", "Rozměry objektu (výkresy nebo délka, šířka a výška)", "process");
-    else if (!dimsKnown) des("rozmery", "Odečíst rozměry objektu z výkresů");
-    if (has(a, "lps_rozsah", "rekonstrukce") && !filesIn(files, "stavajici", "revize")) miss("stavajici", "Stávající projekt nebo poslední revizní zpráva hromosvodu", "later");
+    if (!filesIn(files, "vykresy", "foto")) miss("foto", "Fotky budovy ze všech stran a střechy (nebo výkresy)", "process");
+    if (!filesIn(files, "vykresy")) {
+      if (site?.building?.length) des("rozmery", "Rozměry a výška jen z katastru a výškopisu – ověřit z fotek nebo na místě");
+      else miss("rozmery", "Výkresy budovy, nebo její délka, šířka a výška", "process");
+    }
+    if ((has(a, "lps_rozsah", "rekonstrukce") || has(a, "lps_rozsah", "dsps")) && !filesIn(files, "stavajici", "revize"))
+      miss("stavajici", "Stávající projekt nebo poslední revizní zpráva hromosvodu", "later");
     if ((has(a, "lps_rozsah", "fve") || a.fve_na_strese === "planovana" || a.fve_na_strese === "stavajici") && !filesIn(files, "fve_projekt"))
-      miss("fve_projekt", "Projekt FVE (rozmístění panelů a tras)", has(a, "lps_rozsah", "fve") ? "process" : "later");
-    if (!a.trida_lps || a.trida_lps === UNKNOWN) des("trida", has(a, "lps_rozsah", "analyza") ? "Třída LPS z analýzy rizika" : "Třída LPS neurčena – doporučit analýzu rizika");
-    if (has(a, "lps_rozsah", "analyza") && ["verejna", "bd", "firma"].includes(a.objekt_typ) && !filesIn(files, "pbr"))
-      miss("pbr", "Požárně bezpečnostní řešení (pro analýzu rizika)", "later");
-    if (has(a, "lps_rozsah", "analyza")) miss("osoby", "Provoz objektu: počet osob a doba přítomnosti", "later");
+      miss("fve_projekt", "Projekt fotovoltaiky (rozmístění panelů)", has(a, "lps_rozsah", "fve") ? "process" : "later");
+    des("trida", has(a, "lps_rozsah", "analyza") ? "Třída LPS z analýzy rizika" : "Určit třídu LPS (doporučit analýzu rizika)");
+    if (has(a, "lps_rozsah", "analyza")) {
+      if (!a.osoby || isUnknown(a.osoby)) miss("osoby", "Kolik lidí v budově obvykle bývá", "later");
+      des("analyza_vstupy", "Analýza rizika: přípojky do objektu, okolí, hodnota budovy a vybavení – z mapy, fotek nebo dotazem");
+      if (["verejna", "bd", "firma"].includes(a.objekt_typ) && !filesIn(files, "pbr")) miss("pbr", "Požárně bezpečnostní řešení (pokud existuje)", "later");
+    }
     if (a.krytina_lps === "horlava") manual.push("Hořlavá krytina – zvláštní požadavky na vzdálenosti vodičů");
+    if (a.fasada === "drevo") manual.push("Dřevěná fasáda – hořlavý povrch, ověřit vedení svodů");
+    if (a.fasada === "zateplena") des("svody", "Zateplená fasáda – svody v izolaci nebo oddáleně");
     if (a.objekt_typ === "jine") manual.push("Neobvyklý typ objektu");
   }
 
   if (service === "dwg") {
-    if (!filesIn(files, "zdroj")) miss("zdroj", "Podklady k překreslení (PDF, sken, fotografie nebo DWG)", "process");
+    if (!filesIn(files, "zdroj")) miss("zdroj", "Výkresy k překreslení (PDF, sken, fotka nebo DWG)", "process");
     const raster = files.filter((f) => f.category === "zdroj" && f.status === "uploaded" && (f.meta?.kind === "raster" || /^(jpe?g|png|heic|heif|tiff?|bmp|webp)$/.test(extOf(f.file_name))));
     if ((has(a, "dwg_ukol", "sken") || raster.length) && a.zname_meritko !== "ano")
       manual.push("Rastrový podklad bez známého rozměru – měřítko je nutné ověřit");
     if (raster.length) des("kvalita", "Posoudit čitelnost skenů – nečitelné části překreslit ručně po domluvě");
-    if (has(a, "zachovat", "vrstvy") && !filesIn(files, "sablona")) confirm.push({ key: "vrstvy", label: "Šablona hladin – vlastní od zákazníka, nebo moje?", who: "zakaznik" });
+    if (has(a, "zachovat", "vrstvy") && !filesIn(files, "sablona")) confirm.push({ key: "vrstvy", label: "Šablona hladin – vlastní od zákazníka, nebo moje?", who: "projektant" });
+    if (a.dwg_pocet === "vice") manual.push("Větší sada výkresů – nacenit po prohlídce podkladů");
     const vector = files.filter((f) => f.category === "zdroj" && f.meta?.kind === "vector").length;
     if (vector) auto.push({ key: "pdf_vector", label: "Vektorové PDF", value: `${vector} soubor(ů) – geometrii lze převzít`, source: "analýza podkladů", quality: "prevzato" });
     if (raster.length) auto.push({ key: "pdf_raster", label: "Rastrové podklady", value: `${raster.length} soubor(ů) – nutné překreslení`, source: "analýza podkladů", quality: "prevzato" });
@@ -706,9 +717,11 @@ export function evaluate(order) {
   if (service === "individual") manual.push("Individuální zakázka – posoudit rozsah a cenu");
 
   // kontakt a vzor
-  if (["montaz", "projekce"].includes(a.role)) {
+  if (isFirm(a)) {
     if (a.vzor === "vlastni" && !filesIn(files, "vzor")) miss("vzor", "Firemní vzor dokumentace (razítko, titulní list, TZ)", "process");
     if (a.vzor === "drive") confirm.push({ key: "vzor", label: "Přiřadit firemní profil a vzor z dřívější spolupráce", who: "projektant" });
+    // investora do razítka zákazník nevyplňuje – je ve smlouvě o připojení, jinak se doptám
+    if (!filesIn(files, "pripojeni")) miss("investor", "Investor stavby do razítka (jméno a adresa)", "later");
   }
 
   // soubory nahrané, ale nepotvrzené
@@ -878,41 +891,36 @@ function structuredCloneSafe(v) {
 export function toProjectData(order, extra = {}) {
   const a = order.answers || {};
   const site = a.site || {};
-  const num = (v) => parseNumber(v);
+  const b = site.building || {};
   const known = (v) => (isBlank(v) || isUnknown(v) ? null : v);
-  const distributor = { cez: "ČEZ Distribuce", egd: "EG.D", pre: "PREdistribuce" }[a.distributor] || null;
+  const covering = { taska: "taška", plech: "plech", folie: "fólie", asfalt: "asfaltové pásy", horlava: "hořlavá krytina" }[a.krytina_lps] || null;
+  // Technické parametry (panely, střídač, výkon, SoP) se doplňují z nahraných dokumentů projektantem – formulář je nezjišťuje.
   const data = {
-    meta: {
-      order_number: order.code || null,
-      name: null,
-      building_name: null,
-      stage: null,
-      date: null,
-      revision: null,
-    },
+    meta: { order_number: order.code || null, name: null, building_name: null, stage: null, date: null, revision: null },
     company: extra.company || { name: null, ico: null, address: null },
-    investor: { name: known(a.investor_nazev) || (a.role === "investor" ? known(a.kontakt_jmeno) : null), ico: null, address: null },
-    contractor: ["montaz"].includes(a.role) ? { name: known(a.firma), ico: known(a.ico), address: null, contact: known(a.kontakt_jmeno) } : { name: null, ico: null, address: null, contact: null },
+    investor: { name: a.role === "investor" ? known(a.kontakt_jmeno) : null, ico: null, address: null },
+    contractor: a.role === "montaz" ? { name: known(a.firma), ico: known(a.ico), address: null, contact: known(a.kontakt_jmeno) } : { name: null, ico: null, address: null, contact: null },
     site: {
       address: { full: site.address || null, municipality: site.obec || null, region: null },
       cadastre: { area: site.ku || null, parcels: site.parcel || null },
       gps: Number.isFinite(site.lat) ? `${site.lat.toFixed(6)}N, ${site.lon.toFixed(6)}E` : null,
       climate: { snow_zone: null, wind_zone: null },
       building: {
-        roof_covering: known(a.krytina) || known(a.krytina_plocha) || null,
+        roof_covering: covering,
         roof_tilt_deg: null,
+        floors: b.floors ?? (known(a.podlazi) ? Number(a.podlazi) : null),
         existing_pv: a.fve_rozsah === "rozsireni" ? "ANO" : order.service === "fve" ? "NE" : null,
       },
     },
     pv: order.service === "fve" ? {
-      count: num(a.panely_pocet),
-      panel: { manufacturer: null, model: known(a.panely_typ) },
-      inverters: known(a.stridac) ? [{ label: null, model: a.stridac, count: null }] : [],
-      battery: a.baterie === "ano" ? { model: null, capacity_kwh: num(a.baterie_kwh), count: null } : a.baterie === "ne" ? null : undefined,
+      count: null,
+      panel: { manufacturer: null, model: null },
+      inverters: [],
+      battery: a.baterie === "ne" ? null : { model: null, capacity_kwh: null, count: null },
     } : undefined,
-    energy: order.service === "fve" ? { p_dc_kwp: num(a.vykon_kwp) } : undefined,
-    electrical: order.service === "fve" ? { grid: { distributor } } : undefined,
-    lps: order.service === "lps" ? { class: ["I", "II", "III", "IV"].includes(a.trida_lps) ? a.trida_lps : null } : undefined,
+    energy: order.service === "fve" ? { p_dc_kwp: null } : undefined,
+    electrical: order.service === "fve" ? { grid: { distributor: null, export: a.pretoky === "ano" ? true : a.pretoky === "ne" ? false : null } } : undefined,
+    lps: order.service === "lps" ? { class: null } : undefined,
   };
   const unknownPaths = [];
   (function walk(o, p) {

@@ -7,7 +7,7 @@ const contact = { kontakt_jmeno: "Jan Novák", kontakt_email: "jan@example.cz", 
 const siteRuian = {
   source: "ruian", lat: 50.72, lon: 15.17, address: "Polní 3677/10, 46601 Jablonec nad Nisou",
   parcel: "st. 4940/1", ku: "Jablonec nad Nisou (655970)", obec: "Jablonec nad Nisou",
-  building: { id: "1", use: "objekt občanské vybavenosti", floors: 2, area: 512.3, length: 32.1, width: 16.0, height_est: 8.4 },
+  building: { id: "1", use: "objekt občanské vybavenosti", floors: 2, area: 512.3, perimeter: 96.2, length: 32.1, width: 16.0, height_est: 8.4 },
 };
 
 test("každá služba má kroky a otázky s unikátními id", () => {
@@ -19,6 +19,30 @@ test("každá služba má kroky a otázky s unikátními id", () => {
       if (["single", "multi"].includes(q.type)) assert.ok(q.options?.length, `${s}.${q.id} nemá možnosti`);
     }
   }
+});
+
+test("formulář je krátký a na kliknutí", () => {
+  for (const s of ["fve", "lps", "dwg"]) {
+    for (const step of C.STEPS[s]) {
+      assert.ok(step.questions.length <= 6, `${s}/${step.id}: víc než 6 otázek`);
+      for (const q of step.questions) assert.ok(["single", "multi", "site", "date"].includes(q.type), `${s}.${q.id}: ${q.type} – jen otázky na kliknutí`);
+    }
+    const required = C.allQuestions(s).filter((q) => q.need === "submit" && !q.when);
+    assert.ok(required.length <= 6, `${s}: povinných otázek ${required.length}`);
+  }
+  // s nabídkou a smlouvou o připojení zbývají v technice jen tři otázky
+  const vis = C.visibleQuestions(C.STEPS.fve[2], { komponenty_stav: "mam", zadost: "sop" }).map((q) => q.id);
+  assert.deepEqual(vis, ["komponenty_stav", "zadost", "doplnky"]);
+});
+
+test("nabízené podklady se řídí odpověďmi", () => {
+  const a = C.fileCategoriesFor("fve", { komponenty_stav: "navrh", zadost: "ne", fve_rozsah: "nova" });
+  assert.ok(!a.includes("nabidka") && !a.includes("pripojeni") && a.includes("faktura") && a.includes("foto_er"));
+  assert.ok(!a.includes("stavajici"));
+  const b = C.fileCategoriesFor("fve", { komponenty_stav: "mam", zadost: "sop", fve_rozsah: "rozsireni" });
+  assert.ok(b.includes("nabidka") && b.includes("pripojeni") && !b.includes("faktura") && b.includes("stavajici"));
+  assert.ok(C.allowedFileCategories("fve").includes("pripojeni"), "server přijme i druh skrytý podle odpovědí");
+  assert.ok(C.checkFile("strecha.MOV", 1000) === null, "krátké video jde nahrát");
 });
 
 test("FVE: prázdné zadání nejde odeslat", () => {
@@ -37,8 +61,10 @@ test("FVE: minimální zadání jde odeslat, ale čeká na podklady", () => {
   assert.equal(ev.canSubmit, true);
   assert.equal(ev.readyForProcessing, false);
   assert.equal(ev.suggestedStatus, "ceka_na_podklady");
-  assert.ok(ev.missing.some((m) => m.key === "podklady_objekt" && m.level === "process"));
+  assert.ok(ev.missing.some((m) => m.key === "foto" && m.level === "process"));
+  assert.ok(ev.missing.some((m) => m.key === "foto_er" && m.level === "process"));
   assert.ok(ev.missing.some((m) => m.key === "objekt_typ" && m.level === "process"));
+  assert.ok(ev.missing.some((m) => m.key === "spotreba" && m.level === "later"));
   assert.ok(ev.designer.some((d) => d.key === "komponenty"));
   assert.ok(ev.confirm.some((c) => c.key === "site" && c.who === "projektant"), "ručně zadané místo musí projektant ověřit");
 });
@@ -47,11 +73,11 @@ test("FVE: kompletní zadání s nabídkou je připravené k ověření a převz
   const ev = C.evaluate({
     service: "fve",
     answers: {
-      fve_rozsah: "nova", site: { ...siteRuian, building_confirmed: true }, objekt_typ: "verejna", montaz: "plocha", krytina_plocha: "folie",
-      hromosvod: "ano", hromosvod_resit: "ne", komponenty_stav: "mam", distributor: "cez", jistic_a: "80", pretoky: "ano", zadost: "ne",
+      fve_rozsah: "nova", fve_vykon: "50-100", site: { ...siteRuian, building_confirmed: true }, objekt_typ: "verejna", montaz: "plocha",
+      hromosvod: "ano", komponenty_stav: "mam", pretoky: "ano", zadost: "ne",
       ...contact,
     },
-    files: [up("vykresy"), up("foto"), up("nabidka"), up("datasheet")],
+    files: [up("vykresy"), up("foto"), up("foto_er"), up("nabidka")],
   });
   assert.equal(ev.canSubmit, true);
   assert.equal(ev.readyForProcessing, true);
@@ -62,17 +88,45 @@ test("FVE: kompletní zadání s nabídkou je připravené k ověření a převz
   assert.ok(!ev.confirm.some((c) => c.key === "building"), "budova potvrzená zákazníkem");
   assert.ok(ev.designer.some((d) => d.key === "statika"));
   assert.ok(ev.designer.some((d) => d.key === "lps_kolize"));
-  assert.ok(ev.missing.some((m) => m.key === "ean" && m.level === "later"));
+  assert.ok(ev.missing.some((m) => m.key === "faktura" && m.level === "later"));
+  assert.ok(ev.designer.some((d) => d.key === "zadost"), "podklady k žádosti o připojení");
+  assert.ok(ev.auto.some((x) => x.key === "perimeter" && x.quality === "odhad"));
 });
 
-test("FVE: „Nevím“ u počtu panelů jde na projektanta, neodhaduje se", () => {
+test("FVE: se smlouvou o připojení se na distribuci neptám, jen ji projdu", () => {
   const ev = C.evaluate({
     service: "fve",
-    answers: { fve_rozsah: "nova", site: siteRuian, objekt_typ: "rd", komponenty_stav: "castecne", panely_pocet: "?", ...contact },
+    answers: { fve_rozsah: "nova", site: siteRuian, objekt_typ: "rd", komponenty_stav: "mam", zadost: "sop", ...contact },
+    files: [up("foto"), up("foto_er"), up("nabidka"), up("pripojeni")],
+  });
+  assert.equal(ev.readyForProcessing, true);
+  assert.ok(!ev.missing.some((m) => m.key === "faktura" || m.key === "sop"));
+  assert.ok(ev.designer.some((d) => d.key === "sop_tpp"));
+  const bez = C.evaluate({ service: "fve", answers: { fve_rozsah: "nova", site: siteRuian, objekt_typ: "rd", komponenty_stav: "mam", zadost: "sop", ...contact }, files: [up("foto"), up("foto_er"), up("nabidka")] });
+  assert.ok(bez.missing.some((m) => m.key === "sop" && m.level === "process"));
+});
+
+test("FVE: doplňkové služby jdou do nabídky, úprava dokumentace nechce fotky rozvaděče", () => {
+  const ev = C.evaluate({
+    service: "fve",
+    answers: { fve_rozsah: "uprava", site: siteRuian, objekt_typ: "rd", komponenty_stav: "mam", doplnky: ["lps", "statika"], ...contact },
+    files: [up("stavajici"), up("nabidka")],
+  });
+  assert.ok(!ev.missing.some((m) => m.key === "foto_er" || m.key === "foto"));
+  assert.ok(ev.manual.some((x) => x.includes("hromosvod")));
+  assert.ok(ev.manual.some((x) => x.includes("statick")));
+});
+
+test("FVE: „Nevím“ jde na projektanta, nic se neodhaduje", () => {
+  const ev = C.evaluate({
+    service: "fve",
+    answers: { fve_rozsah: "nova", fve_vykon: "?", montaz: "?", hromosvod: "?", site: siteRuian, objekt_typ: "rd", komponenty_stav: "navrh", ...contact },
     files: [up("foto")],
   });
-  assert.ok(ev.unknown.some((u) => u.key === "panely_pocet"));
-  assert.ok(ev.designer.some((d) => d.key === "panely_pocet"));
+  assert.ok(ev.unknown.some((u) => u.key === "fve_vykon"));
+  assert.ok(ev.designer.some((d) => d.key === "vykon"));
+  assert.ok(ev.designer.some((d) => d.key === "montaz"));
+  assert.ok(ev.designer.some((d) => d.key === "hromosvod"));
   assert.ok(ev.confirm.some((c) => c.key === "building" && c.who === "zakaznik"));
 });
 
@@ -95,18 +149,17 @@ test("FVE: nahrávaný soubor brání odeslání", () => {
   assert.equal(ev.canSubmit, false);
 });
 
-test("LPS: rozměry z výkresů posoudí projektant, bez výkresů chybí", () => {
-  const base = { lps_rozsah: ["novy"], site: siteRuian, objekt_typ: "rd", fve_na_strese: "ne", ...contact };
-  const a = C.evaluate({ service: "lps", answers: base, files: [up("foto")] });
-  assert.ok(a.missing.some((m) => m.key === "rozmery" && m.level === "process"));
-  const b = C.evaluate({ service: "lps", answers: base, files: [up("vykresy")] });
+test("LPS: rozměry se nevyplňují – z výkresů, nebo z mapy k ověření", () => {
+  const base = { lps_rozsah: ["novy"], objekt_typ: "rd", fve_na_strese: "ne", ...contact };
+  const a = C.evaluate({ service: "lps", answers: { ...base, site: { query: "Rychnov, p. č. 12" } }, files: [up("foto")] });
+  assert.ok(a.missing.some((m) => m.key === "rozmery" && m.level === "process"), "bez výkresů i bez obrysu chybí");
+  const b = C.evaluate({ service: "lps", answers: { ...base, site: siteRuian }, files: [up("foto")] });
   assert.ok(!b.missing.some((m) => m.key === "rozmery"));
-  assert.ok(b.designer.some((d) => d.key === "rozmery"));
-  assert.ok(b.designer.some((d) => d.key === "trida"), "neurčená třída LPS jde na projektanta");
-  const c = C.evaluate({ service: "lps", answers: { ...base, delka_m: "12", sirka_m: "9,5", vyska_m: "8", trida_lps: "III" }, files: [up("foto")] });
-  assert.ok(!c.missing.some((m) => m.key === "rozmery"));
-  assert.ok(!c.designer.some((d) => d.key === "trida"));
-  assert.equal(c.readyForProcessing, true);
+  assert.ok(b.designer.some((d) => d.key === "rozmery"), "rozměry z mapy jen k ověření");
+  assert.ok(b.designer.some((d) => d.key === "trida"), "třídu LPS určuje projektant");
+  assert.equal(b.readyForProcessing, true);
+  const c = C.evaluate({ service: "lps", answers: { ...base, site: siteRuian }, files: [up("vykresy")] });
+  assert.ok(!c.designer.some((d) => d.key === "rozmery"));
 });
 
 test("LPS: úprava kvůli FVE vyžaduje projekt FVE, hořlavá krytina jde na ruční posouzení", () => {
@@ -117,7 +170,8 @@ test("LPS: úprava kvůli FVE vyžaduje projekt FVE, hořlavá krytina jde na ru
   });
   assert.ok(ev.missing.some((m) => m.key === "fve_projekt" && m.level === "process"));
   assert.ok(ev.missing.some((m) => m.key === "pbr" && m.level === "later"));
-  assert.ok(ev.missing.some((m) => m.key === "pripojka_el" && m.level === "later"));
+  assert.ok(ev.missing.some((m) => m.key === "osoby" && m.level === "later"));
+  assert.ok(ev.designer.some((d) => d.key === "analyza_vstupy"));
   assert.ok(ev.manual.length > 0);
 });
 
@@ -162,8 +216,8 @@ test("validace kroku: e-mail, IČO, telefon, souhlas, Nevím", () => {
   assert.equal(C.validIco("27082440"), true);
   const step = C.STEPS.fve[2];
   assert.ok(C.validateStep(step, {}).komponenty_stav);
-  assert.deepEqual(C.validateStep(step, { komponenty_stav: "mam", vykon_kwp: "?" }), {});
-  assert.ok(C.validateStep(step, { komponenty_stav: "mam", vykon_kwp: "-3" }).vykon_kwp);
+  assert.deepEqual(C.validateStep(step, { komponenty_stav: "mam", zadost: "?" }), {});
+  assert.deepEqual(C.validateStep(C.STEPS.fve[0], { fve_rozsah: "nova", fve_vykon: "?" }), {});
 });
 
 test("kontrola souborů", () => {
@@ -196,10 +250,12 @@ test("CRM: úkoly podle postupu a chybějících podkladů, událost v kalendá�
 });
 
 test("data pro TZ: neznámé hodnoty zůstávají null", () => {
-  const pd = C.toProjectData({ code: "Z26-0002", service: "fve", answers: { site: siteRuian, panely_pocet: "?", stridac: "SolaX X3-PRO-30K G2", distributor: "?" } });
+  const pd = C.toProjectData({ code: "Z26-0002", service: "fve", answers: { site: siteRuian, fve_vykon: "do10", pretoky: "?" } });
   assert.equal(pd.pv.count, null);
-  assert.equal(pd.pv.inverters[0].model, "SolaX X3-PRO-30K G2");
+  assert.equal(pd.energy.p_dc_kwp, null, "rozsah výkonu z formuláře není výkon");
   assert.equal(pd.electrical.grid.distributor, null);
+  assert.equal(pd.electrical.grid.export, null);
+  assert.equal(pd.site.building.floors, 2);
   assert.equal(pd.site.cadastre.parcels, "st. 4940/1");
   assert.ok(pd._unknown.includes("pv.count"));
   assert.ok(pd._unknown.includes("site.climate.snow_zone"));

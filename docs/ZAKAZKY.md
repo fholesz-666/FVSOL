@@ -28,7 +28,21 @@ Po změně `core.js` nebo `_shared/` spusťte `node scripts/sync-functions.mjs` 
 
 ## Zakázka krok za krokem
 
-**Zákazník** vybere službu → odpoví na otázky (u každé technické je „Nevím“) → najde stavbu v mapě → nahraje podklady → kontakt → přehled → odeslat.
+**Zákazník** vybere službu → odpoví na pár otázek na kliknutí (u technických je „Nevím“) → najde stavbu v mapě → nahraje podklady → kontakt → přehled → odeslat.
+
+Formulář se na technické parametry neptá. Ty jsou v dokumentech, které zákazník běžně má, a vyčtou se z nich:
+
+| Údaj | Odkud |
+|---|---|
+| panely, střídač, baterie, výkon | nabídka montážní firmy (při „navrhněte je“ je navrhuji já) |
+| Pinst/Prez, místo připojení, požadavky TPP, distributor, EAN, investor | smlouva o připojení |
+| distributor, EAN, hlavní jistič, roční spotřeba | vyúčtování elektřiny (když smlouva ještě není) |
+| hlavní jistič, volné místo, HDO | fotka elektroměrového rozvaděče |
+| krytina, tvar střechy, překážky, hromosvod, svody | fotky domu a střechy |
+| adresa, parcela, k. ú., podlaží, obrys a obvod budovy, odhad výšky | katastr (ČÚZK) – rozměry jen jako odhad |
+
+Otázky zůstaly jen ty, které z dokumentů nevyčtu a stačí na ně kliknout: rozsah práce, typ budovy, kam přijdou panely, hromosvod, zda je nabídka a smlouva o připojení, přetoky (jen bez smlouvy), doplňkové služby do nabídky (hromosvod, analýza rizika, statika, PBŘ, nabíječka). U LPS navíc podlaží a počet osob (vstupy nacenění a analýzy rizika), střecha, krytina, fasáda, stávající hromosvod, FVE na střeše. Nabídnuté druhy podkladů se řídí odpověďmi (např. se smlouvou o připojení se nežádá vyúčtování). Lze nahrát i krátké video (MP4/MOV).
+
 Rozpracované zadání se průběžně ukládá. Pokračovat jde přes odkaz v adrese (`/zadani/#t=…`), v tomtéž prohlížeči i bez odkazu, nebo přes odkaz poslaný e-mailem.
 
 Rozlišují se tři fáze:
@@ -53,8 +67,8 @@ Každý krok je úkol v CRM (`fv-z26-0001`). První úkol má termín další pr
 - **převzato automaticky**: údaje z RÚIAN se štítkem `převzato` nebo `odhad`. Rozměry z obrysu a výšku z výškopisu systém nikdy neuvádí jako zaměřené,
 - **k potvrzení**: kdo potvrzuje (zákazník / projektant),
 - **chybí**: úroveň `povinné` (nelze odeslat) / `ke zpracování` (blokuje zpracování) / `později` (vyžádat později),
-- **posoudí projektant**: všechna „Nevím“ u technických údajů, statika, třída LPS, počet panelů. Počet panelů ani komponenty se automaticky nenavrhují,
-- **ruční posouzení**: individuální zakázka, hořlavá krytina, sken bez měřítka, neobvyklý objekt.
+- **posoudí projektant**: všechna „Nevím“, statika, PBŘ u komerčních a veřejných budov, kolize FVE s hromosvodem, třída LPS, kontrola smlouvy o připojení proti střídači, podklady k žádosti o připojení. Výkon, počet panelů ani komponenty se automaticky nenavrhují a rozsah výkonu z formuláře se nikam nepřepisuje jako výkon,
+- **ruční posouzení**: individuální zakázka, doplňkové služby do nabídky, hořlavá krytina nebo dřevěná fasáda, sken bez měřítka, velká sada výkresů, neobvyklý objekt.
 
 Vyplněný formulář není totéž co technicky úplná zakázka. Výstup je vždy potřeba ověřit. Databáze nedovolí předat neověřený výstup ani označit zakázku jako dokončenou bez ověřeného a předaného výstupu.
 

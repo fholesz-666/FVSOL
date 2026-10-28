@@ -14,7 +14,7 @@ const geoDown = process.env.GEO_DOWN === "1";
 const SITE = {
   source: "ruian", lat: 50.7215, lon: 15.1702, address: "Polní 3677/10, 46601 Jablonec nad Nisou", parcel: "st. 4940/1",
   ku: "Jablonec nad Nisou [655970]", parcel_area: 2300,
-  building: { id: "111", use: "objekt občanské vybavenosti", suggested_type: "verejna", floors: 2, area: 512.3, length: 32.1, width: 16, height_est: 8.4 },
+  building: { id: "111", use: "objekt občanské vybavenosti", suggested_type: "verejna", floors: 2, area: 512.3, perimeter: 96.2, length: 32.1, width: 16, height_est: 8.4 },
   buildings: [
     { id: "111", ring: [[15.1700, 50.7213], [15.1705, 50.7213], [15.1705, 50.7217], [15.1700, 50.7217], [15.1700, 50.7213]], dist: 0 },
     { id: "222", ring: [[15.1708, 50.7213], [15.1711, 50.7213], [15.1711, 50.7216], [15.1708, 50.7216], [15.1708, 50.7213]], dist: 20 },

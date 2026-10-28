@@ -78,7 +78,10 @@
 
 /* termíny */
 .terms { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.terms .v { font-size: 26px; font-weight: 600; }
+.terms .v { display: flex; align-items: baseline; gap: 8px; font-weight: 600; }
+.terms .num { font: 600 44px/1.05 var(--font-cond); font-variant-numeric: tabular-nums; min-width: 1ch; }
+.terms .unit { font-size: 18px; }
+.terms .v > [aria-hidden] { display: flex; align-items: baseline; gap: 8px; }
 @media (max-width: 760px) {
   .terms { grid-template-columns: 1fr 1fr; }
   .terms > div:nth-child(2) { border-right: 0; }

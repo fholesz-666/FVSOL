@@ -79,7 +79,7 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
     const order = await orderByToken(b.token);
     if (order.phase === "cancelled") throw new HttpError(409, "Zakázka je zrušená.");
     const name = str(b.name, 200), size = Number(b.size);
-    const allowed = core.fileCategoriesFor(order.service, order.answers);
+    const allowed = core.allowedFileCategories(order.service);
     const category = allowed.includes(b.category) ? b.category : "jine";
     const existing = await filesOf(order.id, "in");
     const err = core.checkFile(name, size, existing);

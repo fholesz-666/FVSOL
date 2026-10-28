@@ -6,7 +6,7 @@
     building: { id: "111", use: "objekt občanské vybavenosti", floors: 2, length: 32.1, width: 16, height_est: 8.4 }, building_confirmed: true };
   const orders = [
     { id: "11111111-1111-4111-8111-111111111111", code: "Z26-0001", service: "fve", phase: "inquiry", status: "ceka_na_podklady", needs_review: false, crm_job_id: "fv-z26-0001",
-      answers: { fve_rozsah: "nova", site, objekt_typ: "verejna", montaz: "plocha", komponenty_stav: "mam", panely_typ: "AIKO A500", panely_pocet: "?", stridac: "SolarEdge SE50K",
+      answers: { fve_rozsah: "nova", site, objekt_typ: "verejna", montaz: "plocha", komponenty_stav: "mam", zadost: "sop", fve_vykon: "50-100", hromosvod: "?",
         kontakt_jmeno: "Jan Novák", kontakt_email: "jan@example.cz", kontakt_telefon: "+420777123456", role: "montaz", firma: "Solar Test s.r.o.", ico: "27082440", vzor: "vlastni", souhlas: true },
       site: { ...site, buildings: [{ id: "111", ring: [[15.17, 50.7213], [15.1705, 50.7213], [15.1705, 50.7217], [15.17, 50.7217], [15.17, 50.7213]] }] },
       completeness: { missing: [{ key: "vzor", label: "Firemní vzor", level: "process" }] }, workflow: {}, template_selection: {}, company_profile_id: null,

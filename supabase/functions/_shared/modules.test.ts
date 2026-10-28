@@ -6,7 +6,7 @@ const assertMatch = (s: string, re: RegExp, msg?: string) => nodeAssert.match(s,
 import { analyzeFile, sheetName } from "./analyze.ts";
 import { fillDocx, fillXml, listPlaceholders } from "./docx.ts";
 import { DxfWriter, dxfText, situaceDxf } from "./dxf.ts";
-import { minAreaRect, polygonArea } from "./geometry.ts";
+import { minAreaRect, polygonArea, polygonPerimeter } from "./geometry.ts";
 
 const FIX = Deno.env.get("FIXTURES") ?? "";
 const OUT = Deno.env.get("OUT") ?? FIX;
@@ -90,4 +90,8 @@ Deno.test({
     assertMatch(d.cad_version!, /2018/);
     assertEquals(sheetName(841, 594), "A1 na šířku");
   },
+});
+
+Deno.test("geometrie: obvod obdélníku", () => {
+  assertEquals(Math.round(polygonPerimeter([[0, 0], [20, 0], [20, 10], [0, 10]])), 60);
 });

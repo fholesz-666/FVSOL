@@ -41,12 +41,11 @@ export function templateValues(order: any, profile: any | null, designer = "Fili
   const s = a.site ?? {};
   const q = (id: string) => core.allQuestions(order.service).find((x: any) => x.id === id);
   const fmt = (id: string) => (q(id) && known(a[id]) ? core.formatValue(q(id), a[id]) : null);
-  const dims = ["delka_m", "sirka_m", "vyska_m"].map((k) => core.parseNumber(a[k]));
   return {
     "zakazka.cislo": order.code ?? null,
     "zakazka.sluzba": core.SERVICES[order.service as keyof typeof core.SERVICES]?.title ?? null,
     "zakazka.datum": fmtDateCz(),
-    "investor.nazev": known(a.investor_nazev) ?? (a.role === "investor" ? known(a.kontakt_jmeno) : null),
+    "investor.nazev": a.role === "investor" ? known(a.kontakt_jmeno) : null,
     "zhotovitel.nazev": a.role === "montaz" ? known(a.firma) : null,
     "zhotovitel.ico": a.role === "montaz" ? known(a.ico) : null,
     "kontakt.jmeno": known(a.kontakt_jmeno),
@@ -57,15 +56,16 @@ export function templateValues(order: any, profile: any | null, designer = "Fili
     "misto.ku": known(s.ku),
     "misto.gps": Number.isFinite(s.lat) ? `${Number(s.lat).toFixed(6)} N, ${Number(s.lon).toFixed(6)} E` : null,
     "objekt.typ": fmt("objekt_typ"),
-    "objekt.rozmery": dims.every((d) => d != null) ? `${dims[0]} × ${dims[1]} m, výška ${dims[2]} m` : null,
-    "fve.vykon_kwp": fmt("vykon_kwp"),
-    "fve.panely": known(a.panely_typ),
-    "fve.pocet_panelu": fmt("panely_pocet"),
-    "fve.stridac": known(a.stridac),
-    "fve.baterie_kwh": a.baterie === "ano" ? fmt("baterie_kwh") : a.baterie === "ne" ? "bez baterie" : null,
-    "fve.distributor": fmt("distributor"),
-    "fve.jistic_a": fmt("jistic_a"),
-    "lps.trida": ["I", "II", "III", "IV"].includes(a.trida_lps) ? `LPS ${a.trida_lps}` : null,
+    // rozměry, výkon a komponenty se berou z dokumentů a ověřuje je projektant – ve vzoru zůstanou žlutě
+    "objekt.rozmery": null,
+    "fve.vykon_kwp": null,
+    "fve.panely": null,
+    "fve.pocet_panelu": null,
+    "fve.stridac": null,
+    "fve.baterie_kwh": a.baterie === "ne" ? "bez baterie" : null,
+    "fve.distributor": null,
+    "fve.jistic_a": null,
+    "lps.trida": null,
     "firma.nazev": profile?.name ?? null,
     "firma.ico": profile?.ico ?? null,
     "firma.adresa": profile?.address ?? null,

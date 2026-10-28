@@ -221,7 +221,7 @@ function viewStart() {
   const tiles = Object.values(core.SERVICES).map((s) => `<button type="button" data-service="${s.id}" aria-pressed="${pre === s.id}" ${S.busy ? "disabled" : ""}>
       <strong>${esc(s.title)}</strong><span>${esc(s.lead)}</span></button>`).join("");
   return `<h1 class="z-title" tabindex="-1">Zadání zakázky</h1>
-    <p class="z-lead">Vyberte službu. Podle ní se zeptám jen na to, co pro zpracování opravdu potřebuji. Zadání se průběžně ukládá a můžete se k němu vrátit.</p>
+    <p class="z-lead">Vyberte službu. Pak pár otázek na kliknutí a nahrání podkladů – technické údaje vyčtu z dokumentů sám. Zadání se průběžně ukládá.</p>
     ${resume}
     <div class="svc-grid" role="group" aria-label="Služba">${tiles}</div>
     <p class="muted" style="margin-top:20px;font-size:15px">Jen krátký dotaz? Napište na <a class="link" href="mailto:${CONFIG.contactEmail}">${CONFIG.contactEmail}</a>.</p>`;
@@ -242,7 +242,7 @@ function viewStep() {
   else body = core.visibleQuestions(step, S.answers).map(renderQuestion).join("");
   const isLast = step.id === "prehled";
   const leads = {
-    podklady: "Nahrajte, co máte. Čím víc podkladů, tím méně se budu doptávat. Další můžete poslat i později.",
+    podklady: "Nahrajte, co máte – fotky z mobilu stačí. Technické údaje si z dokumentů vyčtu sám, nemusíte je nikam přepisovat. Další podklady můžete poslat i později.",
     kontakt: "Kam vám mám poslat nabídku a případné dotazy.",
     prehled: "Zkontrolujte zadání. Odesláním ještě nic neobjednáváte – podklady projdu a pošlu vám nabídku.",
   };
@@ -296,16 +296,7 @@ function renderQuestion(q) {
     : `<input class="input" type="${inputType}" id="q-${q.id}" data-q="${q.id}" data-kind="${q.type === "number" ? "number" : "text"}" value="${esc(unk || v == null ? "" : v)}" ${extra} ${ac} ${ph} ${unk ? "disabled" : ""} ${desc}>`;
   const unit = q.unit ? `<div class="unit-row">${field}<span>${esc(q.unit)}</span></div>` : field;
   const unknownToggle = q.unknown ? `<label class="check unknown-toggle"><input type="checkbox" id="q-${q.id}-unk" data-unknown="${q.id}" ${unk ? "checked" : ""}><span>Nevím</span></label>` : "";
-  const mapHint = mapHintFor(q.id);
-  return `<div class="q field" data-q="${q.id}"><label for="q-${q.id}" class="q-label">${esc(q.label)}</label>${help}${unit}${unknownToggle}${mapHint}${errHtml(q.id)}</div>`;
-}
-
-function mapHintFor(id) {
-  const b = S.answers.site?.building;
-  if (!b) return "";
-  if (id === "delka_m" && b.length) return `<p class="hint-map">Z katastrální mapy vychází ${String(b.length).replace(".", ",")} × ${String(b.width).replace(".", ",")} m (jen odhad z obrysu – přesné rozměry ověřím podle výkresů).</p>`;
-  if (id === "vyska_m" && b.height_est) return `<p class="hint-map">Z výškopisu vychází přibližně ${String(b.height_est).replace(".", ",")} m (orientační odhad).</p>`;
-  return "";
+  return `<div class="q field" data-q="${q.id}"><label for="q-${q.id}" class="q-label">${esc(q.label)}</label>${help}${unit}${unknownToggle}${errHtml(q.id)}</div>`;
 }
 
 function renderSite(q) {
@@ -423,6 +414,11 @@ async function lookup(lat, lon, pick, label) {
     S.answers.objekt_typ = sugType;
     S.prefilled.objekt_typ = true;
   }
+  const floors = Number(site.building?.floors);
+  if (S.service === "lps" && floors > 0 && !S.answers.podlazi) {
+    S.answers.podlazi = String(Math.min(5, Math.round(floors)));
+    S.prefilled.podlazi = true;
+  }
   save();
 }
 
@@ -445,8 +441,8 @@ async function pickBuilding(id) {
 /* ------------------------------------------------------------------ podklady */
 
 const RECOMMEND = {
-  podklady_objekt: ["vykresy", "foto"], komponenty: ["nabidka"], stavajici: ["stavajici", "revize"], zdroj: ["zdroj"],
-  vzor: ["vzor"], fve_projekt: ["fve_projekt"], datasheet: ["datasheet"], sop: ["pripojeni"], pbr: ["pbr"], rozmery: ["vykresy"],
+  foto: ["foto"], foto_er: ["foto_er"], komponenty: ["nabidka"], stavajici: ["stavajici"], zdroj: ["zdroj"],
+  vzor: ["vzor"], fve_projekt: ["fve_projekt"], sop: ["pripojeni"], faktura: ["faktura"], spotreba: ["faktura"], pbr: ["pbr"], rozmery: ["vykresy"],
 };
 
 function viewFiles() {
@@ -468,7 +464,7 @@ function viewFiles() {
     </section>`;
   }).join("");
   return `${html}${errHtml("_files")}
-    <p class="muted" style="font-size:14px">Soubor nejvýše 50 MB, celkem 150 MB. Povolené typy: PDF, DWG, DXF, obrázky, Word, Excel, ZIP. Větší sady pošlete odkazem v poznámce.</p>
+    <p class="muted" style="font-size:14px">Soubor nejvýše 50 MB, celkem 150 MB. PDF, DWG, DXF, fotky, krátká videa, Word, Excel, ZIP. Větší sady pošlete odkazem v poznámce.</p>
     ${S.fileError ? `<div class="notice" role="alert"><p>${esc(S.fileError)}</p></div>` : ""}`;
 }
 
