@@ -43,6 +43,8 @@ Formulář se na technické parametry neptá. Ty jsou v dokumentech, které zák
 
 Otázky zůstaly jen ty, které z dokumentů nevyčtu a stačí na ně kliknout: rozsah práce, typ budovy, kam přijdou panely, hromosvod, zda je nabídka a smlouva o připojení, přetoky (jen bez smlouvy), doplňkové služby do nabídky (hromosvod, analýza rizika, statika, PBŘ, nabíječka). U LPS navíc podlaží a počet osob (vstupy nacenění a analýzy rizika), střecha, krytina, fasáda, stávající hromosvod, FVE na střeše. Nabídnuté druhy podkladů se řídí odpověďmi (např. se smlouvou o připojení se nežádá vyúčtování). Lze nahrát i krátké video (MP4/MOV).
 
+**Smart home (Loxone)** – služba `smarthome` (přidána 16. 11. 2026 podle chybějících podkladů projektu RD Petrovice). Kroky: Co potřebujete (rozsah, fáze stavby, systém, obsah dokumentace) → Dům (místo, typ, podlaží, místnosti, další objekty, zda jsou půdorysy) → Technika domu (topení, otopná soustava, rekuperace, FVE/wallbox, stínění, volitelně výrobci a typy) → Funkce (co má dům ovládat, světla, audio zóny, ovládání, datová síť, přání po místnostech) → Rozpočet a termín (úroveň výbavy / pevný rozpočet, kdo bude montovat, termín). Podklady: půdorysy, výpis oken a stínění, technika domu, světelný projekt, projekt elektroinstalace, PBŘ, fotky. Kontrola úplnosti chce půdorysy (ke zpracování), výpis oken při stínění a typy TČ/rekuperace/FVE (později), u rekonstrukce stávající elektro; projektant posoudí rozhraní techniky (Modbus, SG-Ready…), svítidla, hlavní jistič a umístění rozvaděče. Databáze potřebuje migraci `20261116090000_smarthome_service.sql`.
+
 Rozpracované zadání se průběžně ukládá. Pokračovat jde přes odkaz v adrese (`/zadani/#t=…`), v tomtéž prohlížeči i bez odkazu, nebo přes odkaz poslaný e-mailem.
 
 Rozlišují se tři fáze:

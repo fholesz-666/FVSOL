@@ -267,3 +267,36 @@ test("stav pro zákazníka nikdy netvrdí dokončení bez předaného výstupu",
   assert.equal(C.customerStatus({ phase: "inquiry", status: "ceka_na_podklady" }).tone, "progress", "automatický stav není výzva");
   assert.equal(C.customerStatus({ phase: "inquiry", status: "ceka_na_podklady", hasOpenRequest: true }).tone, "action");
 });
+
+test("Smart home: krátké kroky, povinné jen základní otázky", () => {
+  for (const step of C.STEPS.smarthome) assert.ok(step.questions.length <= 6, `smarthome/${step.id}: víc než 6 otázek`);
+  const required = C.allQuestions("smarthome").filter((q) => q.need === "submit" && !q.when).map((q) => q.id);
+  assert.deepEqual(required, ["sh_rozsah", "site", "sh_vykresy", "sh_funkce", "kontakt_jmeno", "kontakt_email", "souhlas"]);
+  const ev = C.evaluate({ service: "smarthome", answers: {}, files: [] });
+  assert.equal(ev.canSubmit, false);
+});
+
+test("Smart home: bez půdorysů čeká na podklady, s nimi je připraveno k ověření", () => {
+  const answers = {
+    sh_rozsah: "nova", sh_faze: "hruba", site: siteRuian, sh_vykresy: "dwg", objekt_typ: "rd",
+    sh_funkce: ["osvetleni", "stineni", "vytapeni"], sh_vytapeni: "tc", sh_stineni: "zaluzie", ...contact,
+  };
+  const ev = C.evaluate({ service: "smarthome", answers, files: [] });
+  assert.equal(ev.canSubmit, true);
+  assert.equal(ev.readyForProcessing, false);
+  const keys = ev.missing.map((m) => m.key);
+  assert.ok(keys.includes("pudorysy") && keys.includes("okna") && keys.includes("technika"));
+  const ev2 = C.evaluate({ service: "smarthome", answers, files: [up("pudorysy"), up("okna"), up("technika")] });
+  assert.equal(ev2.readyForProcessing, true);
+  assert.ok(ev2.designer.some((d) => d.key === "rozhrani"));
+  const cats = C.fileCategoriesFor("smarthome", answers);
+  assert.ok(cats.includes("pudorysy") && cats.includes("okna") && cats.includes("svetla") && !cats.includes("elektro"));
+  assert.ok(C.allowedFileCategories("smarthome").includes("technika"));
+});
+
+test("Smart home: rekonstrukce chce stávající elektro a jiný systém jde k ručnímu posouzení", () => {
+  const ev = C.evaluate({ service: "smarthome", answers: { sh_rozsah: "rekonstrukce", sh_system: "jiny", sh_vykresy: "pdf", sh_funkce: ["audio"], site: { query: "Karviná" }, ...contact }, files: [up("pudorysy")] });
+  assert.ok(ev.missing.some((m) => m.key === "stavajici" && m.level === "process"));
+  assert.ok(ev.manual.some((m) => m.includes("Jiný systém")));
+  assert.ok(C.fileCategoriesFor("smarthome", { sh_rozsah: "rekonstrukce" }).includes("elektro"));
+});
