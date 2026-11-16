@@ -138,7 +138,7 @@ export const FILE_CATEGORIES = {
 const FILE_CATS_BY_SERVICE = {
   fve: ["nabidka", "pripojeni", "faktura", "foto", "foto_er", "vykresy", "stavajici", "jine"],
   lps: ["foto", "vykresy", "stavajici", "fve_projekt", "pbr", "jine"],
-  smarthome: ["pudorysy", "okna", "technika", "svetla", "elektro", "pbr", "foto", "jine"],
+  smarthome: ["pudorysy", "okna", "technika", "faktura", "svetla", "elektro", "pbr", "foto", "jine"],
   dwg: ["zdroj", "sablona", "jine"],
   individual: ["jine", "vykresy", "foto"],
 };
@@ -500,7 +500,7 @@ export const STEPS = {
       questions: [
         {
           id: "sh_funkce", type: "multi", need: "submit", label: "Co má dům ovládat?",
-          help: "Vyberte vše, co chcete. Rozpočet doladíme ve variantách.",
+          help: "Vyberte vše, co chcete.",
           options: [
             o("osvetleni", "Osvětlení"),
             o("stineni", "Žaluzie a rolety"),
@@ -538,7 +538,7 @@ export const STEPS = {
         },
         {
           id: "sh_mistnosti_popis", type: "textarea", need: null, label: "Přání po místnostech (nepovinné)",
-          placeholder: "Obývák: stmívání, žaluzie, audio. Koupelna: podlahovka, ventilátor. Ložnice: noční světlo…",
+          placeholder: "Obývák: stmívání, žaluzie, audio. Koupelna: podlahovka, ventilátor. Technická místnost / rozvaděč: vedle zádveří…",
         },
       ],
     },
@@ -548,14 +548,13 @@ export const STEPS = {
       questions: [
         {
           id: "sh_rozpocet", type: "single", unknown: true, need: null, label: "Jakou úroveň výbavy chcete?",
-          help: "Rozpočet zpracuji ve variantách, abyste mohli vybrat.",
           options: [
             o("zakladni", "Základní", "Hlavní funkce za rozumnou cenu"),
             o("doporucena", "Doporučená", "Komfort bez zbytečností"),
             o("maximalni", "Maximální", "Vše, co dává smysl"),
             o("strop", "Mám pevný rozpočet"),
           ],
-          designer: "Připravit rozpočet ve 3 variantách",
+          designer: "Připravit rozpočet podle zvolené úrovně výbavy",
         },
         { id: "sh_rozpocet_castka", type: "text", need: null, label: "Rozpočet na chytrou instalaci", placeholder: "např. 400 000 Kč", when: (a) => a.sh_rozpocet === "strop" },
         {
@@ -924,7 +923,8 @@ export function evaluate(order) {
       miss("stavajici", "Stávající elektroinstalace – projekt nebo fotky rozvaděče a krabic", "process");
     if (a.sh_osvetleni === "projekt" && !filesIn(files, "svetla")) miss("svetla", "Světelný projekt", "later");
     if (fun.includes("osvetleni") && a.sh_osvetleni !== "projekt") des("svitidla", "Výběr svítidel a způsob stmívání (DALI, PWM, 0–10 V)");
-    des("hlavni_jistic", "Hlavní jistič, sazba a HDO – z vyúčtování nebo dotazem");
+    if (!filesIn(files, "faktura")) miss("faktura", "Hlavní jistič, sazba a HDO (stačí vyúčtování elektřiny nebo fotka elektroměru)", "later");
+    else des("hlavni_jistic", "Ověřit hlavní jistič a sazbu z vyúčtování – případně navýšení kvůli TČ a wallboxu");
     des("rozvadec", "Umístění rozvaděče a technické místnosti");
     if (fun.includes("detekce")) des("pbr", "Požadavky PBŘ na hlásiče kouře");
     if (fun.includes("brana")) des("brana", "Pohony brány a vrat – výrobce, vstupy");
