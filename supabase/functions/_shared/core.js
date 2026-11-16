@@ -7,7 +7,7 @@
  */
 
 export const UNKNOWN = "?";
-export const CORE_VERSION = "2026-10-28";
+export const CORE_VERSION = "2026-11-16";
 
 /* ------------------------------------------------------------------ číselníky */
 
@@ -25,6 +25,13 @@ export const SERVICES = {
     short: "LPS",
     lead: "Návrh a úpravy hromosvodu, analýza rizika, dostatečné vzdálenosti.",
     crmType: "LPS",
+  },
+  smarthome: {
+    id: "smarthome",
+    title: "Smart home (Loxone)",
+    short: "Smart home",
+    lead: "Projekt chytré elektroinstalace – rozmístění prvků, rozvaděč, schémata, kabely a rozpočet.",
+    crmType: "Ostatní",
   },
   dwg: {
     id: "dwg",
@@ -120,12 +127,18 @@ export const FILE_CATEGORIES = {
   zdroj: { label: "Výkresy k překreslení", help: "PDF, sken nebo fotka výkresu, případně DWG/DXF k úpravě." },
   sablona: { label: "Vaše šablona hladin nebo razítko", help: "Pokud chcete výkresy ve vlastním standardu." },
   vzor: { label: "Firemní vzor dokumentace", help: "Razítko, titulní list, vzorová technická zpráva." },
+  pudorysy: { label: "Půdorysy domu", help: "Nejlépe DWG/DXF z projektu stavby s kótami, jinak PDF, sken nebo i ruční náčrt s rozměry." },
+  okna: { label: "Výpis oken a stínění", help: "Výpis oken a dveří z projektu nebo nabídka na okna a žaluzie (rozměry, typ stínění, pohon)." },
+  technika: { label: "Technika domu", help: "Nabídky nebo typové štítky tepelného čerpadla, rekuperace, fotovoltaiky, wallboxu, pohonů brány." },
+  svetla: { label: "Světelný projekt nebo výběr svítidel", help: "Pokud ho máte – nebo jen fotky svítidel, která se vám líbí." },
+  elektro: { label: "Projekt elektroinstalace", help: "Stávající nebo rozpracovaný projekt silnoproudu, pokud existuje." },
   jine: { label: "Ostatní", help: "Cokoli dalšího – statika, PBŘ, poznámky, náčrt." },
 };
 
 const FILE_CATS_BY_SERVICE = {
   fve: ["nabidka", "pripojeni", "faktura", "foto", "foto_er", "vykresy", "stavajici", "jine"],
   lps: ["foto", "vykresy", "stavajici", "fve_projekt", "pbr", "jine"],
+  smarthome: ["pudorysy", "okna", "technika", "svetla", "elektro", "pbr", "foto", "jine"],
   dwg: ["zdroj", "sablona", "jine"],
   individual: ["jine", "vykresy", "foto"],
 };
@@ -143,6 +156,12 @@ export function fileCategoriesFor(service, answers = {}) {
     fve_projekt: has(a, "lps_rozsah", "fve") || ["stavajici", "planovana"].includes(a.fve_na_strese),
     pbr: has(a, "lps_rozsah", "analyza") && ["bd", "firma", "verejna"].includes(a.objekt_typ),
   };
+  if (service === "smarthome") {
+    show.svetla = has(a, "sh_funkce", "osvetleni");
+    show.elektro = a.sh_rozsah !== "nova" || ["elektro", "hotovo"].includes(a.sh_faze);
+    show.foto = ["rekonstrukce", "rozsireni", "dsps"].includes(a.sh_rozsah) || ["elektro", "hotovo"].includes(a.sh_faze);
+    show.pbr = has(a, "sh_funkce", "detekce") && a.objekt_typ && a.objekt_typ !== "rd";
+  }
   if (service === "lps") show.stavajici = has(a, "lps_rozsah", "rekonstrukce") || a.stavajici_lps === "ano" || has(a, "lps_rozsah", "dsps");
   const cats = (FILE_CATS_BY_SERVICE[service] || ["jine"]).filter((c) => show[c] !== false);
   if (isFirm(a) && a.vzor === "vlastni") cats.splice(cats.length - 1, 0, "vzor");
@@ -362,6 +381,189 @@ export const STEPS = {
           id: "provedeni", type: "single", need: null, label: "Jaký hromosvod by se vám líbil? (nepovinné)",
           options: [o("klasicke", "Klasický drát"), o("hvi", "Izolovaný, méně vidět"), o("projektant", "Nechám na vás")],
         },
+      ],
+    },
+  ],
+
+  smarthome: [
+    {
+      id: "rozsah",
+      title: "Co potřebujete",
+      questions: [
+        {
+          id: "sh_rozsah", type: "single", need: "submit", label: "O jakou dokumentaci jde?",
+          options: [
+            o("nova", "Novostavba", "Projekt před elektroinstalací"),
+            o("rekonstrukce", "Rekonstrukce domu"),
+            o("rozsireni", "Rozšíření stávající chytré instalace"),
+            o("dsps", "Dokumentace skutečného provedení"),
+          ],
+        },
+        {
+          id: "sh_faze", type: "single", unknown: true, need: null, label: "V jaké fázi je stavba?",
+          options: [
+            o("projekt", "Teprve se projektuje"),
+            o("hruba", "Hrubá stavba, ještě bez elektra"),
+            o("elektro", "Elektroinstalace už probíhá"),
+            o("hotovo", "Dům je hotový"),
+          ],
+          ask: "Fáze stavby (je už hotová elektroinstalace?)",
+        },
+        {
+          id: "sh_system", type: "single", need: null, label: "Jaký systém?",
+          options: [o("loxone", "Loxone"), o("jiny", "Jiný – napíšu do poznámky"), o("poradit", "Poraďte mi")],
+        },
+        {
+          id: "sh_vystupy", type: "multi", need: null, label: "Co má dokumentace obsahovat? (nepovinné)",
+          help: "Když nevyberete nic, připravím kompletní sadu.",
+          options: [
+            o("pudorysy", "Půdorysy s rozmístěním prvků"),
+            o("rozvadec", "Rozvaděč a schémata zapojení"),
+            o("kabely", "Kabelové trasy a seznam kabelů"),
+            o("rozpocet", "Rozpočet a seznam materiálu"),
+            o("tz", "Technická zpráva"),
+            o("config", "Podklady pro programování"),
+          ],
+        },
+      ],
+    },
+    {
+      id: "objekt",
+      title: "Dům",
+      questions: [
+        { id: "site", type: "site", need: "submit", label: "Kde je dům?", help: "Napište adresu nebo obec a číslo parcely – u novostavby stačí parcela." },
+        { id: "objekt_typ", type: "single", need: "process", label: "Co je to za budovu?", options: OBJECT_TYPES, ask: "Typ budovy" },
+        {
+          id: "sh_podlazi", type: "single", unknown: true, need: null, label: "Kolik má podlaží?",
+          help: "Včetně obytného podkroví a sklepa.",
+          options: [o("1", "1"), o("2", "2"), o("3", "3"), o("4", "4 a víc")],
+          designer: "Zjistit počet podlaží z půdorysů",
+        },
+        {
+          id: "sh_mistnosti", type: "single", unknown: true, need: null, label: "Kolik má místností?",
+          options: [o("5", "do 5"), o("10", "6–10"), o("20", "11–20"), o("vice", "víc než 20")],
+          designer: "Spočítat místnosti z půdorysů",
+        },
+        {
+          id: "sh_dalsi", type: "multi", need: null, label: "Patří k domu ještě? (nepovinné)",
+          options: [o("garaz", "Samostatná garáž"), o("dilna", "Dílna, sklad, zahradní domek"), o("bazen", "Bazén nebo wellness"), o("zahrada", "Zahrada s rozvody")],
+        },
+        {
+          id: "sh_vykresy", type: "single", need: "submit", label: "Máte půdorysy domu?",
+          help: "Bez půdorysů nejde prvky správně rozmístit – stačí i náčrt s rozměry.",
+          options: [
+            o("dwg", "Ano, DWG/DXF z projektu"),
+            o("pdf", "Ano, PDF nebo sken"),
+            o("nacrt", "Jen náčrt"),
+            o("ne", "Nemám"),
+          ],
+        },
+      ],
+    },
+    {
+      id: "technika",
+      title: "Technika domu",
+      questions: [
+        {
+          id: "sh_vytapeni", type: "single", unknown: true, need: null, label: "Čím se bude topit?",
+          options: [o("tc", "Tepelné čerpadlo"), o("plyn", "Plynový kotel"), o("elektro", "Elektrokotel nebo přímotopy"), o("pevna", "Krb nebo kotel na tuhá paliva"), o("jine", "Jinak")],
+          ask: "Zdroj tepla – výrobce a typ",
+        },
+        {
+          id: "sh_otopna", type: "single", unknown: true, need: null, label: "Jaké topení v místnostech?",
+          options: [o("podlahove", "Podlahové"), o("radiatory", "Radiátory"), o("kombinace", "Kombinace"), o("chlazeni", "Podlahové i s chlazením")],
+          designer: "Ověřit otopnou soustavu a počet okruhů",
+        },
+        {
+          id: "sh_vzt", type: "single", unknown: true, need: null, label: "Bude rekuperace?",
+          options: [o("ano", "Ano"), o("planuje", "Možná později"), o("ne", "Ne")],
+        },
+        {
+          id: "sh_fve", type: "single", unknown: true, need: null, label: "Fotovoltaika a nabíjení auta",
+          options: [o("fve", "Fotovoltaika"), o("fve_baterie", "Fotovoltaika s baterií"), o("fve_wallbox", "Fotovoltaika a wallbox"), o("wallbox", "Jen wallbox"), o("planuje", "Plánuje se"), o("ne", "Nic z toho")],
+        },
+        {
+          id: "sh_stineni", type: "single", unknown: true, need: null, label: "Jaké stínění oken?",
+          options: [o("zaluzie", "Venkovní žaluzie"), o("rolety", "Rolety"), o("screeny", "Screenové rolety"), o("vnitrni", "Vnitřní, záclony"), o("ne", "Žádné")],
+          designer: "Stínění – počet a pohony z výpisu oken",
+        },
+        {
+          id: "sh_typy", type: "text", need: null, label: "Znáte výrobce a typy? (nepovinné)",
+          placeholder: "např. TČ Nibe S2125, rekuperace Atrea, střídač GoodWe 10 kW",
+          help: "Stačí, co víte. Nabídky můžete nahrát v podkladech.",
+        },
+      ],
+    },
+    {
+      id: "funkce",
+      title: "Funkce",
+      questions: [
+        {
+          id: "sh_funkce", type: "multi", need: "submit", label: "Co má dům ovládat?",
+          help: "Vyberte vše, co chcete. Rozpočet doladíme ve variantách.",
+          options: [
+            o("osvetleni", "Osvětlení"),
+            o("stineni", "Žaluzie a rolety"),
+            o("vytapeni", "Topení a chlazení po místnostech"),
+            o("vzt", "Rekuperace"),
+            o("energie", "Energie – FVE, baterie, wallbox"),
+            o("zabezpeceni", "Alarm a zabezpečení"),
+            o("pristup", "Zvonek, vrátník, vstup bez klíče"),
+            o("kamery", "Kamery"),
+            o("audio", "Ozvučení místností"),
+            o("brana", "Brána a garážová vrata"),
+            o("zahrada", "Zavlažování a venkovní světla"),
+            o("detekce", "Kouř, únik vody, plyn"),
+          ],
+        },
+        {
+          id: "sh_osvetleni", type: "single", unknown: true, need: null, label: "Jaká světla?",
+          when: (a) => has(a, "sh_funkce", "osvetleni"),
+          options: [o("zap", "Jen zapínání"), o("stmivani", "Stmívání"), o("rgbw", "Stmívání, barvy, LED pásky"), o("projekt", "Mám světelný projekt")],
+          designer: "Určit typ svítidel a stmívání",
+        },
+        {
+          id: "sh_audio", type: "single", unknown: true, need: null, label: "Kolik místností ozvučit?",
+          when: (a) => has(a, "sh_funkce", "audio"),
+          options: [o("3", "1–3"), o("6", "4–6"), o("vice", "7 a víc")],
+          designer: "Navrhnout audio zóny",
+        },
+        {
+          id: "sh_ovladani", type: "multi", need: null, label: "Jak chcete dům ovládat?",
+          options: [o("tlacitka", "Tlačítka na zdi"), o("app", "Mobilní aplikace"), o("automat", "Samo podle čidel"), o("panel", "Dotykový panel"), o("hlas", "Hlasem")],
+        },
+        {
+          id: "sh_data", type: "single", need: null, label: "Mám navrhnout i datovou síť a Wi-Fi?",
+          options: [o("ano", "Ano, kabely, rack i Wi-Fi"), o("ne", "Ne, jen pro chytrou instalaci")],
+        },
+        {
+          id: "sh_mistnosti_popis", type: "textarea", need: null, label: "Přání po místnostech (nepovinné)",
+          placeholder: "Obývák: stmívání, žaluzie, audio. Koupelna: podlahovka, ventilátor. Ložnice: noční světlo…",
+        },
+      ],
+    },
+    {
+      id: "rozpocet",
+      title: "Rozpočet a termín",
+      questions: [
+        {
+          id: "sh_rozpocet", type: "single", unknown: true, need: null, label: "Jakou úroveň výbavy chcete?",
+          help: "Rozpočet zpracuji ve variantách, abyste mohli vybrat.",
+          options: [
+            o("zakladni", "Základní", "Hlavní funkce za rozumnou cenu"),
+            o("doporucena", "Doporučená", "Komfort bez zbytečností"),
+            o("maximalni", "Maximální", "Vše, co dává smysl"),
+            o("strop", "Mám pevný rozpočet"),
+          ],
+          designer: "Připravit rozpočet ve 3 variantách",
+        },
+        { id: "sh_rozpocet_castka", type: "text", need: null, label: "Rozpočet na chytrou instalaci", placeholder: "např. 400 000 Kč", when: (a) => a.sh_rozpocet === "strop" },
+        {
+          id: "sh_montaz", type: "single", need: null, label: "Kdo bude instalaci dělat?",
+          options: [o("mam", "Mám elektrikáře nebo integrátora"), o("hledam", "Teprve hledám"), o("sam", "Svépomocí")],
+        },
+        { id: "termin", type: "single", need: null, label: "Termín", options: [o("bezny", "Běžný"), o("spech", "Spěchá")] },
+        { id: "termin_datum", type: "date", need: null, label: "Potřebuji do", when: (a) => a.termin === "spech" },
       ],
     },
   ],
@@ -612,7 +814,7 @@ export function evaluate(order) {
   }
 
   // místo stavby – převzaté údaje
-  if (service === "fve" || service === "lps") {
+  if (service === "fve" || service === "lps" || service === "smarthome") {
     if (!siteHasLocation(site)) miss("site", "Místo stavby (adresa nebo parcela)", "submit");
     else {
       if (site.source === "ruian") {
@@ -698,6 +900,37 @@ export function evaluate(order) {
     if (a.krytina_lps === "horlava") manual.push("Hořlavá krytina – zvláštní požadavky na vzdálenosti vodičů");
     if (a.fasada === "drevo") manual.push("Dřevěná fasáda – hořlavý povrch, ověřit vedení svodů");
     if (a.fasada === "zateplena") des("svody", "Zateplená fasáda – svody v izolaci nebo oddáleně");
+    if (a.objekt_typ === "jine") manual.push("Neobvyklý typ objektu");
+  }
+
+  if (service === "smarthome") {
+    const r = a.sh_rozsah;
+    const fun = Array.isArray(a.sh_funkce) ? a.sh_funkce : [];
+    if (!filesIn(files, "pudorysy", "vykresy")) {
+      if (a.sh_vykresy === "ne") miss("pudorysy", "Půdorysy domu (alespoň náčrt s rozměry místností)", "process");
+      else miss("pudorysy", "Půdorysy domu (DWG/DXF z projektu stavby, PDF nebo náčrt)", "process");
+    } else if (a.sh_vykresy === "nacrt" || a.sh_vykresy === "pdf") des("pudorysy", "Půdorysy nejsou v DWG – překreslit dispozici a ověřit kóty");
+    if ((fun.includes("stineni") || ["zaluzie", "rolety", "screeny"].includes(a.sh_stineni)) && !filesIn(files, "okna"))
+      miss("okna", "Výpis oken a dveří s typem stínění", r === "nova" ? "later" : "process");
+    const tech = [];
+    if (fun.includes("vytapeni") || ["tc", "plyn", "elektro"].includes(a.sh_vytapeni)) tech.push("zdroj tepla");
+    if (fun.includes("vzt") || a.sh_vzt === "ano") tech.push("rekuperace");
+    if (fun.includes("energie") || String(a.sh_fve || "").startsWith("fve")) tech.push("FVE / střídač");
+    if (tech.length && !filesIn(files, "technika") && !String(a.sh_typy || "").trim())
+      miss("technika", `Výrobce a typ: ${tech.join(", ")} (nabídka nebo typový štítek)`, "later");
+    if (tech.length) des("rozhrani", "Ověřit komunikační rozhraní techniky (Modbus, SG-Ready, 0–10 V, KNX…)");
+    if (!a.sh_faze || isUnknown(a.sh_faze)) miss("sh_faze", "Fáze stavby (je už hotová elektroinstalace?)", "later");
+    if (["rekonstrukce", "rozsireni", "dsps"].includes(r) && !filesIn(files, "elektro", "foto"))
+      miss("stavajici", "Stávající elektroinstalace – projekt nebo fotky rozvaděče a krabic", "process");
+    if (a.sh_osvetleni === "projekt" && !filesIn(files, "svetla")) miss("svetla", "Světelný projekt", "later");
+    if (fun.includes("osvetleni") && a.sh_osvetleni !== "projekt") des("svitidla", "Výběr svítidel a způsob stmívání (DALI, PWM, 0–10 V)");
+    des("hlavni_jistic", "Hlavní jistič, sazba a HDO – z vyúčtování nebo dotazem");
+    des("rozvadec", "Umístění rozvaděče a technické místnosti");
+    if (fun.includes("detekce")) des("pbr", "Požadavky PBŘ na hlásiče kouře");
+    if (fun.includes("brana")) des("brana", "Pohony brány a vrat – výrobce, vstupy");
+    if (fun.length >= 9) manual.push("Rozsáhlé zadání – nacenit po prohlídce podkladů");
+    if (a.sh_system === "jiny") manual.push("Jiný systém než Loxone – posoudit");
+    if (a.sh_rozpocet === "strop" && a.sh_rozpocet_castka) des("rozpocet", `Navrhnout v rozpočtu ${a.sh_rozpocet_castka}`);
     if (a.objekt_typ === "jine") manual.push("Neobvyklý typ objektu");
   }
 
