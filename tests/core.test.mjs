@@ -285,8 +285,9 @@ test("Smart home: bez půdorysů čeká na podklady, s nimi je připraveno k ov�
   assert.equal(ev.canSubmit, true);
   assert.equal(ev.readyForProcessing, false);
   const keys = ev.missing.map((m) => m.key);
-  assert.ok(keys.includes("pudorysy") && keys.includes("okna") && keys.includes("technika"));
-  const ev2 = C.evaluate({ service: "smarthome", answers, files: [up("pudorysy"), up("okna"), up("technika")] });
+  assert.ok(keys.includes("pudorysy") && keys.includes("okna") && keys.includes("technika") && keys.includes("faktura"));
+  const ev2 = C.evaluate({ service: "smarthome", answers, files: [up("pudorysy"), up("okna"), up("technika"), up("faktura")] });
+  assert.deepEqual(ev2.missing.map((m) => m.key), ["kontakt_telefon"]);
   assert.equal(ev2.readyForProcessing, true);
   assert.ok(ev2.designer.some((d) => d.key === "rozhrani"));
   const cats = C.fileCategoriesFor("smarthome", answers);
