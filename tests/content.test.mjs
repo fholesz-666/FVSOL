@@ -219,6 +219,7 @@ test("původní soubory webu zůstaly beze změny", async () => {
     return; // mimo git (např. v nasazení) se nekontroluje
   }
   const files = changed.split("\n").filter(Boolean).filter((f) => !["index.html", "css/fvsol.css"].includes(f) && !f.startsWith("zadani/") && !f.startsWith("admin/"))
-    .filter((f) => !/^images\/portfolio\/(thumbs\/)?smarthome-[a-z-]+\.webp$/.test(f)); // ukázky smart home do portfolia
+    .filter((f) => !/^images\/portfolio\/(thumbs\/)?smarthome-[a-z-]+\.webp$/.test(f)) // ukázky smart home do portfolia
+    .filter((f) => f !== "js/main.js"); // jediná úprava: vypnutý parallax úvodního obrázku na mobilu (disableParallax)
   assert.deepEqual(files, [], "změněné původní soubory");
 });

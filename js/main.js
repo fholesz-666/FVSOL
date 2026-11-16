@@ -528,8 +528,12 @@ var loadPortfolioSinglePage = function(id, href) {
 };
 
 var jarallaxPlugin = function() {
+	// Na mobilech a dotykových zařízeních parallax vypnout – obrázek se jinak při posouvání „hýbe“.
 	$('.jarallax').jarallax({
-    speed: 0.2
+    speed: 0.2,
+    disableParallax: function () {
+      return window.matchMedia('(max-width: 991.98px), (hover: none)').matches;
+    }
 	});
 	jarallax(document.querySelectorAll('.jarallax-video'), {
     speed: 0.2,
